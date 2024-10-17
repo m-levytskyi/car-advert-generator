@@ -2,3 +2,5 @@
 /venv_adl
 /Code/dataset/data/
 /.venv
+Code/image_classifier/Resnet50/Data
+Code/image_classifier/Resnet50/wandb
