@@ -1,4 +1,4 @@
-torch
-torchvision
 gdown
 scipy
+wandb
+nvidia-ml-py3
