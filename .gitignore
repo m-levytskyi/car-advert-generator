@@ -2,10 +2,11 @@
 /venv_adl
 /Code/dataset/data/
 .venv
+
 Code/image_classifier/Resnet50/Data
 Code/image_classifier/Resnet50/wandb
 
 #AlexNet
-Code/image_classifier/checkpoints
-Code/image_classifier/dataset
-Code/image_classifier/wandb
+Code/image_classifier/alexnet/checkpoints/
+Code/image_classifier/alexnet/dataset/
+Code/image_classifier/alexnet/wandb/
