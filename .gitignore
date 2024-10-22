@@ -11,3 +11,7 @@ Code/image_classifier/alexnet/checkpoints/
 Code/image_classifier/alexnet/dataset/
 Code/image_classifier/alexnet/wandb/
 .DS_Store
+
+#VisualTransformer
+Code/image_classifier/VisualTransformer/data/
+Code/image_classifier/VisualTransformer/wandb/
