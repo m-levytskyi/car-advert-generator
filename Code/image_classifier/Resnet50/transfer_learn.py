@@ -44,7 +44,7 @@ def train_model(model, criterion, optimizer, scheduler, device, dataloaders, dat
                 running_corrects = 0
 
                 # Iterate over data with tqdm progress bar
-                with tqdm(dataloaders[phase], desc=f"{phase} Epoch {epoch}", unit='batch') as tbar:
+                with tqdm.tqdm(dataloaders[phase], desc=f"{phase} Epoch {epoch}", unit='batch') as tbar:
                     for inputs, labels in tbar:
                         inputs = inputs.to(device)
                         labels = labels.to(device)
