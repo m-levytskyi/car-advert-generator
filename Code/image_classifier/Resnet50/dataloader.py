@@ -53,7 +53,7 @@ class CustomCarDataset():
         return image, label
 
 
-def prepare_datasets_and_dataloaders(data_transforms, csv_file = 'Code/dataset/Data/DS1_vorläufig_Car_Models_3778/correct.csv'):
+def prepare_datasets_and_dataloaders(csv_file = 'Code/dataset/Data/DS1_vorläufig_Car_Models_3778/correct.csv'):
     # Create datasets for train and validation
     train_dataset = CustomCarDataset(csv_file=csv_file, transform=data_transforms['train'])
     val_dataset = CustomCarDataset(csv_file=csv_file, transform=data_transforms['val'])
@@ -76,6 +76,15 @@ def prepare_datasets_and_dataloaders(data_transforms, csv_file = 'Code/dataset/D
 
     return dataloaders, dataset_sizes, train_dataset
 
+def get_test_dataloader(csv_file = 'Code/dataset/Data/DS1_vorläufig_Car_Models_3778/correct.csv'):
+    # Create datasets for train and validation
+    test_dataset = CustomCarDataset(csv_file=csv_file, transform=data_transforms['train'], phase='test')
+
+    # Create data loaders
+    test_loader = DataLoader(test_dataset, batch_size=4, shuffle=True, num_workers=0)
+
+    return test_loader, len(test_dataset), test_dataset
+
 def create_correct_df(full_csv, img_folder):
     og_df = pd.read_csv(full_csv)
     new_df = pd.DataFrame()
@@ -95,8 +104,8 @@ def create_full_csv(create_correct_df):
     The final_2.csv file contains the paths to the images in the test and train folders but not the paths to the images themselves.
     """
     path_to_incomplete_csv = 'Code/dataset/Data/DS1_vorläufig_Car_Models_3778/final_2.csv'
-    path_to_img_train = 'Code/dataset/Data/DS1_vorläufig_Car_Models_3778/train'
     path_to_img_test = 'Code/dataset/Data/DS1_vorläufig_Car_Models_3778/test'
+    path_to_img_train = 'Code/dataset/Data/DS1_vorläufig_Car_Models_3778/train'
 
     test_csv = create_correct_df(path_to_incomplete_csv, path_to_img_test)
     train_csv = create_correct_df(path_to_incomplete_csv, path_to_img_train)
@@ -113,7 +122,7 @@ def create_full_csv(create_correct_df):
 
 if __name__ == '__main__':
     # create_full_csv(create_correct_df)
-
+    # dataloaders, dataset_sizes, train_dataset = prepare_datasets_and_dataloaders(data_transforms)
     path_to_correct_csv = 'Code/dataset/Data/DS1_vorläufig_Car_Models_3778/correct.csv'
     # Test the CustomCarDataset class
     dataset = CustomCarDataset(csv_file=path_to_correct_csv, transform=data_transforms['train'], phase='test')
@@ -123,9 +132,3 @@ if __name__ == '__main__':
     # test getitem
     image, label = dataset[5]
     print(f"Image shape: {image}, Label: {label}")
-
-
-    # dataloaders, dataset_sizes, train_dataset = prepare_datasets_and_dataloaders(data_transforms)
-
-
-    

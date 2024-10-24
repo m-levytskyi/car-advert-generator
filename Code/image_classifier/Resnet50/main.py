@@ -15,10 +15,13 @@ def configure_device():
    device = None
    if torch.backends.mps.is_available():
       device = torch.device("mps")
+      print("Using MPS")
    elif torch.cuda.is_available():
       device = torch.device("cuda:0")
+      print("Using GPU")
    else:
       device = torch.device("cpu")
+      print("Using CPU")
    return device
 
 def initialize_resnet50_for_transfer_learning(num_classes, device):
@@ -35,25 +38,22 @@ def initialize_resnet50_for_transfer_learning(num_classes, device):
 
 def setup_training(model_conv):
    criterion = nn.CrossEntropyLoss()
-   optimizer_conv = optim.Adam(model_conv.fc.parameters(), lr=0.001)  # Changed to Adam optimizer
+   optimizer_conv = optim.Adam(model_conv.fc.parameters(), lr=0.001, weight_decay=0.0001)
    exp_lr_scheduler = lr_scheduler.StepLR(optimizer_conv, step_size=7, gamma=0.1)
    return criterion, optimizer_conv, exp_lr_scheduler
 
-if __name__ == 'main':
-   # Load CSV data
-   csv_file = ''
-   path_image_folder = ''
+if __name__ == '__main__':
    device = configure_device()
 
    # Setup data, model and training
-   dataloaders, dataset_sizes, train_dataset = prepare_datasets_and_dataloaders(csv_file, path_image_folder, data_transforms, csv_pruned=True)
+   dataloaders, dataset_sizes, train_dataset = prepare_datasets_and_dataloaders()
    model_conv = initialize_resnet50_for_transfer_learning(len(train_dataset.labels), device)
    criterion, optimizer_conv, exp_lr_scheduler = setup_training(model_conv)
 
    # Train the model
-   model_conv = train_model(model_conv, criterion, optimizer_conv, exp_lr_scheduler, num_epochs=1)
+   model_conv = train_model(model_conv, criterion, optimizer_conv, exp_lr_scheduler, device, dataloaders, dataset_sizes, num_epochs=1)
 
    # Save the trained model
-   model_save_path = 'trained_model_on_test.pth'
+   model_save_path = 'trained_model_on_train.pth'
    torch.save(model_conv.state_dict(), model_save_path)
    print(f'Model saved to {model_save_path}')
