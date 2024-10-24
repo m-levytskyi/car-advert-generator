@@ -44,9 +44,9 @@ def setup_training(model_conv):
 
 if __name__ == '__main__':
    device = configure_device()
-
+   load_everything_in_memory = False
    # Setup data, model and training
-   dataloaders, dataset_sizes, train_dataset = prepare_datasets_and_dataloaders()
+   dataloaders, dataset_sizes, train_dataset = prepare_datasets_and_dataloaders(in_memory_flag=load_everything_in_memory)
    model_conv = initialize_resnet50_for_transfer_learning(len(train_dataset.labels), device)
    criterion, optimizer_conv, exp_lr_scheduler = setup_training(model_conv)
 

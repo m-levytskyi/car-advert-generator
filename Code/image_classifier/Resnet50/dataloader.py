@@ -79,10 +79,10 @@ class CustomCarDataset(Dataset):
         return image, label
 
 
-def prepare_datasets_and_dataloaders(csv_file = 'Code/dataset/Data/DS1_vorläufig_Car_Models_3778/correct.csv'):
+def prepare_datasets_and_dataloaders(csv_file = 'Code/dataset/Data/DS1_vorläufig_Car_Models_3778/correct.csv', in_memory_flag=False):
     # Create datasets for train and validation
-    train_dataset = CustomCarDataset(csv_file=csv_file, transform=data_transforms['train'])
-    val_dataset = CustomCarDataset(csv_file=csv_file, transform=data_transforms['val'])
+    train_dataset = CustomCarDataset(csv_file=csv_file, transform=data_transforms['train'], phase='train', in_memory=in_memory_flag)
+    val_dataset = CustomCarDataset(csv_file=csv_file, transform=data_transforms['val'], phase='train', in_memory=in_memory_flag)
 
     # Create data loaders
     train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=0)
@@ -102,9 +102,9 @@ def prepare_datasets_and_dataloaders(csv_file = 'Code/dataset/Data/DS1_vorläufi
 
     return dataloaders, dataset_sizes, train_dataset
 
-def get_test_dataloader(csv_file = 'Code/dataset/Data/DS1_vorläufig_Car_Models_3778/correct.csv'):
+def get_test_dataloader(csv_file_correct = 'Code/dataset/Data/DS1_vorläufig_Car_Models_3778/correct.csv'):
     # Create datasets for train and validation
-    test_dataset = CustomCarDataset(csv_file=csv_file, transform=data_transforms['train'], phase='test')
+    test_dataset = CustomCarDataset(csv_file=csv_file_correct, transform=data_transforms['train'], phase='test')
 
     # Create data loaders
     test_loader = DataLoader(test_dataset, batch_size=4, shuffle=True, num_workers=0)
@@ -147,14 +147,14 @@ def create_full_csv(create_correct_df):
     full_csv.to_csv('Code/dataset/Data/DS1_vorläufig_Car_Models_3778/correct.csv', index=False)
 
 if __name__ == '__main__':
-    # create_full_csv(create_correct_df)
-    # dataloaders, dataset_sizes, train_dataset = prepare_datasets_and_dataloaders(data_transforms)
-    path_to_correct_csv = 'Code/dataset/Data/DS1_vorläufig_Car_Models_3778/correct.csv'
-    # Test the CustomCarDataset class
-    dataset = CustomCarDataset(csv_file=path_to_correct_csv, transform=data_transforms['train'], phase='test')
-    print(f"Number of samples in the dataset: {len(dataset)}")
-    print(f"Number of unique labels in the dataset: {len(dataset.labels)}")
-    print(f"Label map: {dataset.label_map}")
-    # test getitem
-    image, label = dataset[5]
-    print(f"Image shape: {image}, Label: {label}")
+    create_full_csv(create_correct_df)
+    # # dataloaders, dataset_sizes, train_dataset = prepare_datasets_and_dataloaders(data_transforms)
+    # path_to_correct_csv = 'Code/dataset/Data/DS1_vorläufig_Car_Models_3778/correct.csv'
+    # # Test the CustomCarDataset class
+    # dataset = CustomCarDataset(csv_file=path_to_correct_csv, transform=data_transforms['train'], phase='test')
+    # print(f"Number of samples in the dataset: {len(dataset)}")
+    # print(f"Number of unique labels in the dataset: {len(dataset.labels)}")
+    # print(f"Label map: {dataset.label_map}")
+    # # test getitem
+    # image, label = dataset[5]
+    # print(f"Image shape: {image}, Label: {label}")
