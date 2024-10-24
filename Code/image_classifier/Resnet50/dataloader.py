@@ -21,35 +21,61 @@ data_transforms = {
     ]),
 }
 
-
-class CustomCarDataset():
-    def __init__(self, csv_file, transform=None, phase='train'):
+class CustomCarDataset(Dataset):
+    def __init__(self, csv_file, transform=None, phase='train', in_memory=False):
         self.data_full = pd.read_csv(csv_file)
         self.data = self.data_full[self.data_full['phase'] == phase]
         self.transform = transform
         self.labels = sorted(self.data['brand'].unique())
         self.label_map = {label: idx for idx, label in enumerate(self.labels)}
+        self.in_memory = in_memory
+
+        # If in_memory is True, preload all images
+        if self.in_memory:
+            self.images = []
+            self.preload_images()
+
+    def preload_images(self):
+        """Load all images into memory."""
+        for idx, row in self.data.iterrows():
+            path_to_img = row['path_to_jpg']
+
+            # Check if the image file exists
+            if not os.path.exists(path_to_img):
+                raise Exception(f"File not found: {path_to_img}")
+
+            # Load and store the image
+            image = Image.open(path_to_img).convert('RGB')
+            if self.transform:
+                image = self.transform(image)
+            self.images.append((image, self.label_map[row['brand']]))
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
-        row = self.data.iloc[idx]
-        path_to_img = row['path_to_jpg']
+        if self.in_memory:
+            # If in_memory is True, return preloaded image
+            image, label = self.images[idx]
+        else:
+            # Load image from disk
+            row = self.data.iloc[idx]
+            path_to_img = row['path_to_jpg']
 
-        # Check if path exists
-        if not os.path.exists(path_to_img):
-            raise Exception(f"File not found: {path_to_img}")
+            # Check if the image file exists
+            if not os.path.exists(path_to_img):
+                raise Exception(f"File not found: {path_to_img}")
 
-        # Load the image
-        image = Image.open(path_to_img).convert('RGB')
+            # Load the image
+            image = Image.open(path_to_img).convert('RGB')
 
-        # Apply transformations if any
-        if self.transform:
-            image = self.transform(image)
+            # Apply transformations
+            if self.transform:
+                image = self.transform(image)
 
-        # Get the label for the image
-        label = self.label_map[row['brand']]
+            # Get the label
+            label = self.label_map[row['brand']]
+
         return image, label
 
 
