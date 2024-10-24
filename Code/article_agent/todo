@@ -1,0 +1,3 @@
+- OpenAI could not be used because it is not free
+- Huggingface could not be used because it was not compatible with langchain
+- Implemented Huggingface without using langchain
