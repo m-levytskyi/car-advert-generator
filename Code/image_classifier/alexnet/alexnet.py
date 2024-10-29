@@ -13,6 +13,7 @@ import nvidia_smi
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 EPOCH_NUM=90
 BATCH_SIZE=128
@@ -134,7 +135,7 @@ def validateModel(val_model,val_dataloader,amountToValidate):
     fig.canvas.draw()
     image_array = np.frombuffer(fig.canvas.buffer_rgba(), dtype=np.uint8).reshape(fig.canvas.get_width_height()[::-1] + (4,))
     wandb_img = wandb.Image(image_array, mode="RGBA", caption=f"Confusion Matrix Epoch {epoch}")
-    wandb.log({f"Confusion Matrix {epoch}": wandb_img})
+    wandb.log({f"val/img/Confusion Matrix {epoch}": wandb_img})
 
     print("of",validated,"images",end=" ",flush=True)
     return val_loss / validated , correct / validated
@@ -195,7 +196,7 @@ if __name__ == '__main__':
     #use stochastic gradient descent as optimizer function
     optimizer = optim.Adam(params=model.parameters(),lr=0.0001) # lr von 0.01 bei Adam unperformant (langsam, stagniert und springt zu sehr), 0.001 besser, aber langsamer
     #reduce learning rate by factor 10 every 30 epochs
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.1)
+    #scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.1)
 
     for epoch in range(EPOCH_NUM):
         print("Epoch",epoch, "progress:",end=" ",flush=True)
@@ -229,14 +230,14 @@ if __name__ == '__main__':
             evaltrain+=len(img)
 
             metrics = {"train/train_loss": loss,
-                       "train/epoch": (steps + (math.floor(train_data_size/BATCH_SIZE) * epoch)) / math.floor(train_data_size/BATCH_SIZE),
+                       "train/epoch": epoch,
                        "train/example_ct": len(img)}
             if steps < math.ceil(train_data_size/BATCH_SIZE):
                 wandb.log(metrics)
 
             print(int(steps/(math.floor(train_data_size/BATCH_SIZE))*100), "%",end=' ',flush=True,sep='')
         
-        scheduler.step()
+        #scheduler.step()
         print()
         end = time.time()
         print("Epoch", epoch,"with",evaltrain ,"images finished in","%.2f"%((end-start)/60),"minutes with max","%.2f"%(max_vram_use / 1_000_000_000), "/", "%.2f"%(nv_info.total/ 1_000_000_000), "GB VRAM used - Train Loss:" ,"%.3f"%(epochloss/steps))
@@ -260,6 +261,13 @@ if __name__ == '__main__':
             'model': model.state_dict(),
         }
         torch.save(state, checkpoint_path)
+
+    val_loss, accuracy = validateModel(model,dataloader_val,-1)
+    val_metrics = {"val/val_loss": val_loss,
+                        "val/val_accuracy": accuracy}
+    wandb.log({**metrics, **val_metrics})
+    print(f"ended in {(time.time()-startval)/60:.2f}m - Validation Loss: {val_loss:3f}, Validation Accuracy: {accuracy:.2f}")
+
 
     if(device == "cuda"):
         nvidia_smi.nvmlShutdown()
