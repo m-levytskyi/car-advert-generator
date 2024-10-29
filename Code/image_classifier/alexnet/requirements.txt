@@ -3,3 +3,4 @@ scipy
 wandb
 nvidia-ml-py3
 scikit-learn
+matplotlib
