@@ -27,10 +27,10 @@ def replace_substring_in_csv(input_file, output_file, old_substring, new_substri
                 writer.writerow(new_row)
 
 # Example usage
-input_csv = '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778/Mappe1.csv'
-output_csv = '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778/Mappe2.csv'
-old_text = 'MercedesAMG'
-new_text = 'MERCEDESBENZ'
+input_csv = '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778/final_2_lowercase_5.csv'
+output_csv = '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778/final_2_lowercase_6.csv'
+old_text = 'roadster & convertible'
+new_text = 'roadster'
 
 replace_substring_in_csv(input_csv, output_csv, old_text, new_text)
 
