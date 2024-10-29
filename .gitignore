@@ -1,6 +1,6 @@
 /Team_Project/.quarto/
 /venv_adl
-/Code/dataset/data/
+
 .venv
 
 Code/image_classifier/Resnet50/Data
@@ -18,3 +18,5 @@ Code/article_agent/.env
 #VisualTransformer
 Code/image_classifier/VisualTransformer/data/
 Code/image_classifier/VisualTransformer/wandb/
+Code/dataset/Data/DS1_vorläufig_Car_Models_3778/test
+Code/dataset/Data/DS1_vorläufig_Car_Models_3778/train
