@@ -1,6 +1,6 @@
 /Team_Project/.quarto/
 /venv_adl
-
+/Code/dataset/data
 .venv
 
 Code/image_classifier/Resnet50/Data
