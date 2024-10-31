@@ -42,6 +42,6 @@ def compare_and_copy_dirs(dir1, dir2):
             print(subdir)
 
 # Example usage
-dir1 = "/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778/all_data"
-dir2 = "/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778/test"
+dir1 = "/Users/johannesdecker/Downloads/Car_Models_3778/all_data"
+dir2 = "/Users/johannesdecker/Downloads/Car_Models_3778/test"
 compare_and_copy_dirs(dir1, dir2)
