@@ -2,7 +2,9 @@
 /venv_adl
 /wandb
 
+/Code/dataset/data
 .venv
+.DS_Store
 
 Code/image_classifier/Resnet50/Data
 Code/image_classifier/Resnet50/wandb

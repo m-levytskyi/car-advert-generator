@@ -5,3 +5,9 @@
 
 TODO:
 - Incorporate some API to get pictures from prompts (e.g. Unsplash, DuckDuckGo)
+
+
+Article Assembler braucht:
+- Text (4 Paragraphen) über das Auto
+- Caption Untertitle von den Bildern
+- Prompts (basierend auf den Captions), beschreiben die zu generierenden Bilder
