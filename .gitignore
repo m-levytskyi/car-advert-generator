@@ -1,5 +1,6 @@
 /Team_Project/.quarto/
 /venv_adl
+/wandb
 
 .venv
 

@@ -40,7 +40,7 @@ class AlexNet(nn.Module):
 
         self.step = nn.Sequential(
         # input: RGB -> 3 channels with format 227x227
-        nn.Conv2d(3,96,11,4),
+        nn.Conv2d(3,96,11,4,padding=2), #padding -> added to support 224x224 input
         nn.ReLU(),
         nn.LocalResponseNorm(5,0.0001,0.75,2),
         ## 96x55x55
@@ -115,7 +115,7 @@ def validateModel(val_model,val_dataloader,amountToValidate):
             all_preds.extend(predicted.cpu().numpy())
             all_labels.extend(label.cpu().numpy())
 
-            validated+=len(img)
+            validated+=len(image)
 
             if(validated>=amountToValidate and amountToValidate >= 1):
                 break
@@ -165,10 +165,10 @@ if __name__ == '__main__':
     #TODO: crop pics to 256x256, extract 4 more patches (up-left, up-right, down-left, down-right) and mirror them horizontal, augment RGB values with PCA
 
     dataset_train = datasets.DTD("./dataset",download=True,
-        transform=transforms.Compose([transforms.Resize(256),transforms.CenterCrop(227),transforms.ToTensor(),transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]),)
+        transform=transforms.Compose([transforms.Resize(256),transforms.CenterCrop(224),transforms.ToTensor(),transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]),)
     
     dataset_validate=datasets.DTD("./dataset",split="val",download=True,
-        transform=transforms.Compose([transforms.Resize(256),transforms.CenterCrop(227),transforms.ToTensor(),transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]),)
+        transform=transforms.Compose([transforms.Resize(256),transforms.CenterCrop(224),transforms.ToTensor(),transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]),)
     
     model =  AlexNet(amount_classes=len(dataset_train.classes)).to(device)
     #torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', pretrained=True).to(device) 
