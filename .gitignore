@@ -1,6 +1,8 @@
 /Team_Project/.quarto/
 /venv_adl
 /wandb
+__pycache__
+wandb
 
 /Code/dataset/data
 .venv
