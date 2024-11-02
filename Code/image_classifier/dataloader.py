@@ -3,6 +3,9 @@ import os
 from PIL import Image
 from torchvision import  transforms
 from torch.utils.data import Dataset
+import tqdm
+import psutil
+import time
 
 class CustomCarDataset(Dataset):
     def __init__(self, csv_file, transform=transforms.ToTensor(), phase='train', in_memory=False,amount=0):
@@ -23,23 +26,19 @@ class CustomCarDataset(Dataset):
 
     def preload_images(self):
         """Load all images into memory."""
-        all=len(self.data)
-        print(f"{all} images")
-        imagescounter=0
+        with tqdm.tqdm(self.data.iterrows(), desc="Images to RAM", unit='image',total=len(self.data), dynamic_ncols=True) as tbar:
+            for index, row in tbar:
+                path_to_img = os.path.join("../../",row['path_to_jpg'])
 
-        for _, row in self.data.iterrows():
-            path_to_img = os.path.join("../../",row['path_to_jpg'])
+                if not os.path.exists(path_to_img):
+                    raise Exception(f"File not found: {path_to_img}")
 
-            if not os.path.exists(path_to_img):
-                raise Exception(f"File not found: {path_to_img}")
-
-            image = Image.open(path_to_img).convert('RGB')
-            if self.transform:
-                image = self.transform(image)
-            self.images.append((image, self.label_map[row['brand']]))
-
-            imagescounter+=1
-            print(f"image {imagescounter} from {all} with shape {image.shape} loaded")
+                image = Image.open(path_to_img).convert('RGB')
+                if self.transform:
+                    image = self.transform(image)
+                self.images.append((image, self.label_map[row['brand']]))
+                if(index % 100 == 0)
+                    tbar.set_postfix(free_ram=psutil.virtual_memory()[4]/1073741824)
 
     def __len__(self):
         return len(self.data)
