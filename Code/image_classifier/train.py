@@ -1,8 +1,6 @@
 import math
 import torch
 from torch.utils.data import DataLoader
-import torchvision.transforms as transforms
-import torch.nn.functional as functional
 import wandb
 import time
 import nvidia_smi
@@ -10,6 +8,7 @@ import dataloader
 import importlib.util
 import tqdm
 
+#import alexnet
 spec = importlib.util.spec_from_file_location("AlexNet", 'alexnet/alexnet.py')
 alexnet = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(alexnet)
@@ -47,9 +46,11 @@ def validateModel(val_model,val_dataloader,amountToValidate):
             title=f"Confusion Matrix Epoch {epoch}"  )
             })
 
-        val_metrics = {"val/val_loss": val_loss / validated,
-                        "val/val_accuracy": correct / validated}
-        wandb.log({val_metrics})
+        wandb.log({
+        "val/val_loss": val_loss / validated,
+        "val/val_accuracy": correct / validated
+        })
+
         print(f"ended in {(time.time()-startval)/60:.2f}m - Validation Loss: {val_loss / validated:3f}, Validation Accuracy: {correct / validated:.2f}")
 
 if __name__ == '__main__':
@@ -60,14 +61,13 @@ if __name__ == '__main__':
         nvidia_smi.nvmlInit()
         nv_handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
 
+    # TODO: parse / config file for these arguments
     csv = "../dataset/sort/reduced_dataset.csv"    
-    transformations=transforms.Compose([transforms.Resize(256),transforms.CenterCrop(224),transforms.ToTensor()
-                                        ,transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
     in_ram_dataset=True
     modelname="alexnet"
 
-    dataset_train = dataloader.CustomCarDataset(csv_file=csv,transform=transformations, phase='train', in_memory=in_ram_dataset)
-    dataset_val = dataloader.CustomCarDataset(csv_file=csv,transform=transformations, phase='test', in_memory=in_ram_dataset,amount=640)
+    dataset_train = dataloader.CustomCarDataset(csv_file=csv, phase='train', in_memory=in_ram_dataset)
+    dataset_val = dataloader.CustomCarDataset(csv_file=csv, phase='test', in_memory=in_ram_dataset,amount=640)
 
     if(modelname=="alexnet"):
         model =  alexnet.AlexNet(amount_classes=len(dataset_train.classes)).to(device)
