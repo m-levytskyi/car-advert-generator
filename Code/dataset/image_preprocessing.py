@@ -36,8 +36,8 @@ def preprocess_images(input_dir, output_dir, file_extension=".jpg"):
                 print(f"Processed and saved: {output_path.replace(file_extension, '.pt')}")
 
 # Example usage
-input_directory = "path/to/input_directory"  # Replace with the path to your images
-output_directory = "path/to/output_directory"  # Replace with the path for saving processed images
+input_directory = "/Users/johannesdecker/Downloads/DS1_Car_Models_3778_sorted_256"  # Replace with the path to your images
+output_directory = "/Users/johannesdecker/Downloads/DS1_Car_Models_3778_sorted_256_preprocessed"  # Replace with the path for saving processed images
 file_ext = ".jpg"  # Define the image file extension to process
 
 preprocess_images(input_directory, output_directory, file_ext)

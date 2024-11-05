@@ -3,7 +3,7 @@ import shutil
 import pandas as pd
 import Levenshtein as lev
 
-def delete_non_matching_subdirectories(csv_file, directory, column_name, distance_threshold=6):
+def delete_non_matching_subdirectories(csv_file, directory, column_name, distance_threshold=0):
     # Read the .csv file
     df = pd.read_csv(csv_file)
     
@@ -55,8 +55,8 @@ def delete_non_matching_subdirectories(csv_file, directory, column_name, distanc
         print("All CSV entries had matching subdirectories.")
 
 # Example usage
-csv_file = '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778_256/final_2_lowercase.csv'  # Path to your .csv file
-directory = '/Users/johannesdecker/Downloads/Car_Models_3778/all_data'  # Path to your directory containing subdirectories
+csv_file = '/Users/johannesdecker/Downloads/sorted_brands.csv'  # Path to your .csv file
+directory = '/Users/johannesdecker/Downloads/Car_Models_3778/train'  # Path to your directory containing subdirectories
 column_name = 'path'  # The column name from the .csv file to compare against subdirectory names
 
 delete_non_matching_subdirectories(csv_file, directory, column_name)

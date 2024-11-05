@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     new_size = (256, 256)
     # Define the path to the directory with images
-    directory = '/Users/johannesdecker/ADL_DATASETS/UNLABELED_IMAGES_ALL'
+    directory = '/Users/johannesdecker/Downloads/DS2'
     # input("Enter the directory path to resize images: ")
 
     # Call the function to resize images and log output

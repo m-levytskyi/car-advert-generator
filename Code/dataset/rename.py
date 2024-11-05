@@ -22,6 +22,6 @@ def rename_files_recursively(directory):
             print(f"Renamed: {old_file_path} -> {new_file_path}")
 
 # Example usage:
-directory = "/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778/test"
+directory = "/Users/johannesdecker/Downloads/Car_Models_3778_sorted/train"
 rename_files_recursively(directory)
 

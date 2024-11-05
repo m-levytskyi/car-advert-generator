@@ -17,12 +17,12 @@ def extract_unique_entries(csv_file, column_name, output_file):
     # Write the unique entries to a text file as a bullet point list
     with open(output_file, mode='w', encoding='utf-8') as file:
         for entry in sorted(unique_entries):  # Sorting to keep the list organized
-            file.write(f"• {entry}\n")
+            file.write(f"{entry}\n")
 
     print(f"Unique entries from '{column_name}' saved to {output_file}")
 
 
 # Example usage:
-extract_unique_entries('/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778_v1/final_2_lowercase.csv',
-                       'body_style',
-                       '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778_v1/body_styles.txt')
+extract_unique_entries('/Users/johannesdecker/Downloads/Car_Models_3778/reduced_dataset.csv',
+                       'path',
+                       '/Users/johannesdecker/Downloads/Car_Models_3778/sorted_brands.txt')

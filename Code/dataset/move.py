@@ -26,9 +26,9 @@ def copy_files_with_extension(src_dir, dest_dir, file_extension):
                 print(f"Copied: {full_file_path} -> {dest_dir}")
 
 # Example usage
-source_directory = '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/LABELED_IMAGES' # '/path/to/source/directory'
-destination_directory = '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS2/labels' # '/path/to/destination/directory'
-file_ext = '.txt'  # Replace with the desired file extension
+source_directory = '/Users/johannesdecker/Downloads/88,000+_Images_of_Cars' # '/path/to/source/directory'
+destination_directory = '/Users/johannesdecker/Downloads/DS2' # '/path/to/destination/directory'
+file_ext = '.jpg'  # Replace with the desired file extension
 
 copy_files_with_extension(source_directory, destination_directory, file_ext)
 
