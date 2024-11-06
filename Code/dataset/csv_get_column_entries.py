@@ -23,6 +23,6 @@ def extract_unique_entries(csv_file, column_name, output_file):
 
 
 # Example usage:
-extract_unique_entries('/Users/johannesdecker/Downloads/Car_Models_3778/reduced_dataset.csv',
-                       'path',
-                       '/Users/johannesdecker/Downloads/Car_Models_3778/sorted_brands.txt')
+extract_unique_entries('/Users/johannesdecker/Downloads/reduced_dataset.csv',
+                       'segment',
+                       '/Users/johannesdecker/Downloads/reduced_dataset_segment.txt')

@@ -6,7 +6,7 @@ def detect_encoding(file_path):
         result = chardet.detect(f.read())
         return result['encoding']
 
-def replace_substring_in_csv(input_file, output_file, old_substring, new_substring):
+def replace_substrings_in_csv(input_file, output_file, replacements):
     # Detect the file encoding
     encoding = detect_encoding(input_file)
     print(f"Detected encoding: {encoding}")
@@ -21,17 +21,47 @@ def replace_substring_in_csv(input_file, output_file, old_substring, new_substri
             
             # Iterate over each row in the input CSV
             for row in reader:
-                # Replace the old substring with the new one in every cell
-                new_row = [cell.replace(old_substring, new_substring) for cell in row]
+                # Replace each old substring with the new one in every cell
+                new_row = [cell for cell in row]
+                for old_substring, new_substring in replacements.items():
+                    new_row = [cell.replace(old_substring, new_substring) for cell in new_row]
                 # Write the modified row to the output CSV
                 writer.writerow(new_row)
 
 # Example usage
-input_csv = '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778/final_2_lowercase_5.csv'
-output_csv = '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778/final_2_lowercase_6.csv'
-old_text = 'roadster & convertible'
-new_text = 'roadster'
+input_csv = '/Users/johannesdecker/Downloads/reduced_dataset_1.csv'
+output_csv = '/Users/johannesdecker/Downloads/reduced_dataset_2.csv'
+replacements = {
+    "Roadster & Convertible": "convertible",
+    "Compact": "compact",
+    "Compact SUV": "compact_suv",
+    "Coupe": "coupe",
+    "Coupe Cabrio": "cabrio",
+    "Crossover": "crossover",
+    "Entry Premium": "entry_premium",
+    "Exotic": "exotic",
+    "Fullsize Pickup": "fullsize_pickup",
+    "Heavy Duty Pickup": "heavy_duty_pickup",
+    "Large": "large",
+    "Large MPV": "large_mpv",
+    "Large SUV": "large_suv",
+    "Lower Premium": "lower_premium",
+    "Luxury": "luxury",
+    "Medium": "medium",
+    "Medium MPV": "medium_mpv",
+    "Medium Premium": "medium_premium",
+    "Medium SUV": "medium_suv",
+    "Midsize Pickup": "midsize_pickup",
+    "Mini": "mini",
+    "Premium Coupe": "premium_coupe",
+    "Premium SUV": "premium_suv",
+    "Small": "small",
+    "Small MPV": "small_mpv",
+    "Small Pickup": "small_pickup",
+    "Small SUV": "small_suv",
+    "Upper Premium": "upper_premium"
+}
 
-replace_substring_in_csv(input_csv, output_csv, old_text, new_text)
+replace_substrings_in_csv(input_csv, output_csv, replacements)
 
-print(f"Replaced '{old_text}' with '{new_text}' in {input_csv} and saved it as {output_csv}")
+print(f"Replaced strings in {input_csv} and saved the result as {output_csv}")

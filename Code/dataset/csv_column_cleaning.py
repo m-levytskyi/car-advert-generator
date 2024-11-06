@@ -1,12 +1,16 @@
 import pandas as pd
+import re
 
 def process_column(csv_file, column_to_edit, new_column_name, output_file):
     try:
         # Load the CSV file with a specified encoding
         df = pd.read_csv(csv_file, encoding='ISO-8859-1', delimiter=';')
         
-        # Process the column: remove trailing whitespace, replace spaces with underscores
-        df[new_column_name] = df[column_to_edit].str.strip().str.replace(r'\s+', '_', regex=True)
+        # Process the column: convert to lowercase, remove special characters, and replace spaces with underscores
+        df[new_column_name] = df[column_to_edit].str.lower()\
+                                                 .str.replace(r'[^a-z0-9\s]', '', regex=True)\
+                                                 .str.strip()\
+                                                 .str.replace(r'\s+', '_', regex=True)
         
         # Save the updated DataFrame to a new CSV file
         df.to_csv(output_file, index=False)
@@ -18,9 +22,9 @@ def process_column(csv_file, column_to_edit, new_column_name, output_file):
         print(f"An error occurred: {e}")
 
 # Example usage
-csv_file = '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778/final.csv'          # Input CSV file
-column_to_edit = 'title'    # Name of the column to process
-new_column_name = 'path' # Name of the new column with edited data
-output_file = '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778/final_2.csv'       # Output CSV file
+csv_file = '/Users/johannesdecker/Downloads/reduced_dataset_2.csv'          # Input CSV file
+column_to_edit = 'segment'    # Name of the column to process
+new_column_name = 'segment_2' # Name of the new column with edited data
+output_file = '/Users/johannesdecker/Downloads/reduced_dataset_3.csv'       # Output CSV file
 
 process_column(csv_file, column_to_edit, new_column_name, output_file)
