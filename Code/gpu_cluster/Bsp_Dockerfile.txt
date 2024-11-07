@@ -1,0 +1,51 @@
+FROM nvidia/cuda:11.6.1-runtime-ubuntu18.04
+RUN apt -y update && apt -y dist-upgrade && apt -y install git python3.8 python3-pip python3.8-dev && apt -y clean
+ENV PYTHONPATH=/usr/local/lib/python3.8/dist-packages/
+
+WORKDIR /root
+
+RUN git clone https://github.com/lstein/stable-diffusion && cd stable-diffusion && git checkout dbc8fc79008795875eb22ebf0c57927061af86bc
+
+WORKDIR /root/stable-diffusion
+
+RUN python3.8 -m pip install --upgrade pip
+
+#RUN pip3.8 -m pip install --upgrade scikit-build
+
+COPY myreqs.txt myreqs.txt
+
+RUN pip3.8 install --upgrade -r myreqs.txt -f https://download.pytorch.org/whl/torch_stable.html
+
+COPY sourcereqs.txt sourcereqs.txt
+
+RUN pip3.8 install --upgrade -r sourcereqs.txt
+
+RUN cd src/clip && python3.8 setup.py develop -d /usr/local/lib/python3.8/dist-packages/ -s /usr/bin
+
+RUN cd src/k-diffusion && python3.8 setup.py develop -d /usr/local/lib/python3.8/dist-packages/ -s /usr/bin
+
+RUN cd src/taming-transformers && python3.8 setup.py develop -d /usr/local/lib/python3.8/dist-packages/ -s /usr/bin
+
+RUN python3.8 setup.py develop -d /usr/local/lib/python3.8/dist-packages/ -s /usr/bin
+
+RUN python3.8 scripts/preload_models.py
+
+RUN pip3.8 install realesrgan
+
+# Upgrade torch to a version supporting the A100
+
+#RUN pip3.8 install --upgrade torch==1.12.1+cu116 pytorch-lightning==1.7.4 torch-fidelity==0.3.0 torchdiffeq==0.2.3 torchmetrics==0.9.3 torchvision==0.13.1 -f https://download.pytorch.org/whl/torch_stable.html
+
+RUN mkdir -p /root/stable-diffusion/outputs
+
+VOLUME /root/stable-diffusion/outputs
+
+RUN mkdir -p /root/stable-diffusion/models/ldm/stable-diffusion-v1/
+
+RUN ln -s /data/sd-v1-4.ckpt /root/stable-diffusion/models/ldm/stable-diffusion-v1/model.ckpt
+
+#RUN git pull
+
+CMD python3.8 scripts/dream.py --web --host 0.0.0.0
+
+EXPOSE 9090

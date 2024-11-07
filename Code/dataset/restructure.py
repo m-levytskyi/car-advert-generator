@@ -38,7 +38,7 @@ def restructure_directory(source_dir, files_per_batch):
         print(f"Batch {batch_num} created with {len(files_to_move)} files.")
 
 # Usage
-source_directory = '/Users/johannesdecker/ADL_DATASETS/UNLABELED_IMAGES_ALL_256'  # Replace with your directory path
+source_directory = '/Users/johannesdecker/Downloads/DS2'  # Replace with your directory path
 files_per_batch = 2000  # Replace with the number of files per batch
 
 restructure_directory(source_directory, files_per_batch)
