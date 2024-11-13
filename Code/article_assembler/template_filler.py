@@ -2,8 +2,15 @@ import re
 
 def populate_template(template_file, paragraphs, captions, figure_paths, car_brand, car_model):
     # Read the template file
-    with open(template_file, 'r') as file:
-        template = file.read()
+    try:
+        with open(template_file, 'r') as file:
+            template = file.read()
+    except FileNotFoundError:
+        print(f"Error: Template file '{template_file}' not found.")
+        return
+    except Exception as e:
+        print(f"Error reading template file: {e}")
+        return
 
     # Basic placeholders for car brand and model
     content = {
@@ -19,14 +26,20 @@ def populate_template(template_file, paragraphs, captions, figure_paths, car_bra
     for i, caption in enumerate(captions, start=1):
         content[f"caption_{i}"] = caption
 
+    print(figure_paths)
     # Dynamically add figure placeholders
     for i, figure_path in enumerate(figure_paths, start=1):
-        content[f"fig{i}"] = figure_path
+        content[f"figure_{i}"] = figure_path
 
     # Replace each placeholder in the template using regular expressions
     for placeholder, replacement in content.items():
-        template = re.sub(rf"\{{\{{\s*{placeholder}\s*\}}\}}", replacement, template)
+        # Use re.escape() to handle any special characters in placeholders
+        template = re.sub(rf"\{{\{{\s*{re.escape(placeholder)}\s*\}}\}}", str(replacement), template)
 
-    # Save the populated content to a new markdown file
-    with open("filled_article.md", "w") as file:
-        file.write(template)
+    # Save the populated content to a new HTML file
+    try:
+        with open("filled_article.html", "w") as file:
+            file.write(template)
+        print("Template populated successfully and saved as 'filled_article.html'")
+    except Exception as e:
+        print(f"Error writing populated HTML: {e}")
