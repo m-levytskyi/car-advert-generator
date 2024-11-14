@@ -11,8 +11,7 @@ from langchain_core.runnables import RunnablePassthrough
 
 class ArticleAgent:
     def __init__(self, repo_id: str = "HuggingFaceH4/zephyr-7b-beta", task: str = "text-generation", max_new_tokens: int = 1024, 
-                 do_sample: bool = False, repetition_penalty: float = 1.03, 
-                 user_agent: str = "MyArticleAgent/1.0 (http://mywebsite.com; contact@myemail.com)"):
+                 do_sample: bool = False, repetition_penalty: float = 1.03):
         # Load environment variables from .env file
         load_dotenv()
 
