@@ -128,9 +128,6 @@ class ArticleAgent:
         for paragraph in paragraphs:
             # for a diffusion model, create the description of the image based on the paragraph
             image_description = self.get_information(context=paragraph, instruction="Create a description of an image based on the context provided. Only describe the image.")
-            print('\nNew Image Description')
-            print("=" * 50)
-            print(image_description)
             image_descriptions.append(image_description)
         return image_descriptions
 
@@ -148,9 +145,6 @@ class ArticleAgent:
         for description in descriptions:
             # for a diffusion model, create the description of the image based on the paragraph
             image_description = self.get_information(context=description, instruction="Create a subtitle for an image based on the image description provided in the context. Only give me the subtitle.")
-            print('\nNew Image Subtitle')
-            print("=" * 50)
-            print(image_description)
             image_descriptions.append(image_description)
         return image_descriptions
 
