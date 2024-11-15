@@ -2,6 +2,7 @@ import logging
 
 from typing import List
 from article_agent import ArticleAgent
+import json
 
 
 class AgentPipeline:
@@ -49,16 +50,21 @@ class AgentPipeline:
         image_descriptions = self.agent.create_image_descriptions(paragraphs=paragraphs)
         subtitles = self.agent.create_image_subtitles(descriptions=image_descriptions)
         logging.info('Article Agent: Created finished creating paragraphs, image descriptions and subtitles.')
-        print(f"Article Agent: \nParagraphs: {paragraphs}, \n\nImage Descriptions: {image_descriptions}, \n\nImage Subtitles: {subtitles}")
-        return {
+        return json.dumps({
             'paragraphs': paragraphs,
             'captions': subtitles,
-            'propmts': image_descriptions
-        }
+            'prompts': image_descriptions
+        })
+
 
 if __name__ == "__main__":
     agent_pipeline = AgentPipeline(brand='BMW', car_type='SUV')
     response = agent_pipeline()
+    # save json object to a file
+
+    with open('output.json', 'w') as f:
+        f.write(response)
+
 
 
     

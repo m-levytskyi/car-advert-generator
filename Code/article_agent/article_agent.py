@@ -1,9 +1,8 @@
 import os
 from dotenv import load_dotenv
 from typing import Optional, List
-import wikipediaapi
-from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
-from langchain_core.messages import HumanMessage, SystemMessage
+# https://python.langchain.com/docs/integrations/chat/groq/
+from langchain_groq import ChatGroq
 from langchain_community.retrievers import WikipediaRetriever
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -16,19 +15,18 @@ class ArticleAgent:
         load_dotenv()
 
         # Get the Hugging Face token from the environment variables
-        self.hf_token: Optional[str] = os.getenv("HUGGING_FACE_TOKEN")
+        self.gq_token: Optional[str] = os.getenv("GROQ_API_KEY")
 
         # Initialize the language model
-        self.llm = HuggingFaceEndpoint(
-            repo_id=repo_id,
-            task=task,
-            max_new_tokens=max_new_tokens,
-            do_sample=do_sample,
-            repetition_penalty=repetition_penalty,
+        # https://console.groq.com/docs/overview
+        self.llm = ChatGroq(
+            api_key=self.gq_token,
+            model="llama3-8b-8192",
+            temperature=0.5,
+            max_tokens=None,
+            timeout=None,
+            max_retries=2,
         )
-        
-        # Initialize the chat model
-        self.chat_model = ChatHuggingFace(llm=self.llm)
 
         # Initialize the Wikipedia retriever
         self.retriever = WikipediaRetriever()
@@ -166,6 +164,11 @@ if __name__ == "__main__":
 
     image_descriptions = agent.create_image_descriptions(paragraphs=paragraphs)
     subtitles = agent.create_image_subtitles(descriptions=image_descriptions)
+
+    for i, subtitle in enumerate(subtitles):
+        print(f"Image {i + 1} description: {image_descriptions[i]}")
+        print(f"Image {i + 1} subtitle: {subtitle}")
+        print("\n" + "=" * 50 + "\n")
     
     
 
