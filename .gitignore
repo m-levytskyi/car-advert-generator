@@ -11,6 +11,8 @@ wandb
 Code/image_classifier/Resnet50/Data
 Code/image_classifier/Resnet50/wandb
 
+*.pth
+
 #AlexNet
 Code/image_classifier/alexnet/checkpoints/
 Code/image_classifier/alexnet/dataset/
