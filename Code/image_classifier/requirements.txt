@@ -5,3 +5,4 @@ nvidia-ml-py3
 scikit-learn
 matplotlib
 pandas
+opencv-python

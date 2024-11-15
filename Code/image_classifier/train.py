@@ -7,6 +7,7 @@ import nvidia_smi
 import dataloader
 import importlib.util
 import tqdm
+import os
 
 #import alexnet
 spec = importlib.util.spec_from_file_location("AlexNet", 'alexnet/alexnet.py')
@@ -65,6 +66,15 @@ if __name__ == '__main__':
     csv = "../dataset/sort/reduced_dataset.csv"    
     in_ram_dataset=True
     modelname="alexnet"
+    checkpointdir= f"checkpoints/"           
+    os.makedirs(checkpointdir, exist_ok=True)
+    run_number = 1
+    while True:
+        run_dir = os.path.join("checkpoints", f"run{run_number}")
+        if not os.path.exists(run_dir):
+            os.makedirs(run_dir)
+            break
+        run_number += 1
 
     dataset_train = dataloader.CustomCarDataset(csv_file=csv, phase='train', in_memory=in_ram_dataset)
     dataset_val = dataloader.CustomCarDataset(csv_file=csv, phase='test', in_memory=in_ram_dataset,amount=640)
@@ -74,8 +84,8 @@ if __name__ == '__main__':
     if(modelname=="resnet"):
       model =  alexnet.AlexNet(amount_classes=len(dataset_train.classes)).to(device)
 
-    train_loader = DataLoader(dataset_train, batch_size=model.batchsize, shuffle=True, num_workers=0, drop_last=True)
-    val_loader = DataLoader(dataset_val, batch_size=model.batchsize, shuffle=False, num_workers=0,drop_last=True)
+    train_loader = DataLoader(dataset_train, batch_size=model.batchsize, shuffle=True, num_workers=0, drop_last=True,pin_memory=True)
+    val_loader = DataLoader(dataset_val, batch_size=model.batchsize, shuffle=False, num_workers=0,drop_last=True,pin_memory=True)
     
     #wandb.login()
     wandb.init(
@@ -97,18 +107,11 @@ if __name__ == '__main__':
     for epoch in range(model.epochs):
         model.train()
         steps = 0
-        max_vram_use=0
         epochloss=0
-        evaltrain=0
         
         with tqdm.tqdm(train_loader, desc=f"Epoch {epoch}", unit='batch') as tbar:
             for img, clss in tbar:
                 img, clss = img.to(device), clss.to(device)
-                
-                if(device == "cuda"):
-                    nv_info = nvidia_smi.nvmlDeviceGetMemoryInfo(nv_handle)            
-                    if(max_vram_use<nv_info.used):
-                        max_vram_use=nv_info.used
 
                 output=model(img)
                 loss = model.loss(output,clss)
@@ -121,7 +124,6 @@ if __name__ == '__main__':
                 tbar.set_postfix(loss=loss.item())
 
                 steps+=1
-                evaltrain+=len(img)
 
                 metrics = {"train/train_loss": loss,
                         "train/epoch": epoch,
@@ -129,12 +131,9 @@ if __name__ == '__main__':
                 if steps < math.ceil(train_data_size/model.batchsize):
                     wandb.log(metrics)       
         
-        if(epoch % 10 == 0 or epoch==model.epochs-1):
-            validateModel(model,val_loader,-1)
-
-    if(device == "cuda"):
-        nvidia_smi.nvmlShutdown()
-
+        validateModel(model,val_loader,-1)
+        if(epoch % 5 == 0 or epoch==model.epochs-1):
+            torch.save(model.state_dict(), f"{checkpointdir}run{run_number}/{modelname}_epoch{epoch}_loss{epochloss/steps}_weights.pth")
 
 
 
