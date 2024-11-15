@@ -11,8 +11,7 @@ from langchain_core.runnables import RunnablePassthrough
 
 class ArticleAgent:
     def __init__(self, repo_id: str = "HuggingFaceH4/zephyr-7b-beta", task: str = "text-generation", max_new_tokens: int = 1024, 
-                 do_sample: bool = False, repetition_penalty: float = 1.03, 
-                 user_agent: str = "MyArticleAgent/1.0 (http://mywebsite.com; contact@myemail.com)"):
+                 do_sample: bool = False, repetition_penalty: float = 1.03):
         # Load environment variables from .env file
         load_dotenv()
 
@@ -99,61 +98,55 @@ class ArticleAgent:
         return chain.invoke(context)
 
 
-def create_paragraphs(tasks: List[str], instruction: str, agent: ArticleAgent) -> List[str]:
-    """
-    Create paragraphs for the given tasks.
+    def create_paragraphs(self, tasks: List[str], instruction: str) -> List[str]:
+        """
+        Create paragraphs for the given tasks.
 
-    Args:
-        tasks (List[str]): The list of tasks for which paragraphs need to be created.
+        Args:
+            tasks (List[str]): The list of tasks for which paragraphs need to be created.
 
-    Returns:
-        List[str]: The list of paragraphs created for the given tasks.
-    """
-    paragraphs = []
-    for task in tasks:
-        paragraph = agent.get_information_with_wikipedia(task=task, instruction=instruction)
-        paragraphs.append(paragraph)
-    return paragraphs
+        Returns:
+            List[str]: The list of paragraphs created for the given tasks.
+        """
+        paragraphs = []
+        for task in tasks:
+            paragraph = self.get_information_with_wikipedia(task=task, instruction=instruction)
+            paragraphs.append(paragraph)
+        return paragraphs
 
-def create_image_descriptions(paragraphs: List[str], agent: ArticleAgent) -> List[str]:
-    """
-    Create descriptions for the given images based on a string.
+    def create_image_descriptions(self, paragraphs: List[str]) -> List[str]:
+        """
+        Create descriptions for the given images based on a string.
 
-    Args:
-        paragraphs (List[str]): The list of paragraphs based on which the image descriptions need to be created.
+        Args:
+            paragraphs (List[str]): The list of paragraphs based on which the image descriptions need to be created.
 
-    Returns:
-        List[str]: The list of image descriptions created for the given paragraphs.
-    """
-    image_descriptions = []
-    for paragraph in paragraphs:
-        # for a diffusion model, create the description of the image based on the paragraph
-        image_description = agent.get_information(context=paragraph, instruction="Create a description of an image based on the context provided. Only describe the image.")
-        print('\nNew Image Description')
-        print("=" * 50)
-        print(image_description)
-        image_descriptions.append(image_description)
-    return image_descriptions
+        Returns:
+            List[str]: The list of image descriptions created for the given paragraphs.
+        """
+        image_descriptions = []
+        for paragraph in paragraphs:
+            # for a diffusion model, create the description of the image based on the paragraph
+            image_description = self.get_information(context=paragraph, instruction="Create a description of an image based on the context provided. Only describe the image.")
+            image_descriptions.append(image_description)
+        return image_descriptions
 
-def create_image_subtitles(descriptions: List[str], agent: ArticleAgent) -> List[str]:
-    """
-    Create image subtitles based on image descriptions
+    def create_image_subtitles(self, descriptions: List[str]) -> List[str]:
+        """
+        Create image subtitles based on image descriptions
 
-    Args:
-        descriptions (List[str]): The list of paragraphs based on which the image descriptions need to be created.
+        Args:
+            descriptions (List[str]): The list of paragraphs based on which the image descriptions need to be created.
 
-    Returns:
-        List[str]: The list of image descriptions created for the given paragraphs.
-    """
-    image_descriptions = []
-    for description in descriptions:
-        # for a diffusion model, create the description of the image based on the paragraph
-        image_description = agent.get_information(context=description, instruction="Create a subtitle for an image based on the image description provided in the context. Only give me the subtitle.")
-        print('\nNew Image Subtitle')
-        print("=" * 50)
-        print(image_description)
-        image_descriptions.append(image_description)
-    return image_descriptions
+        Returns:
+            List[str]: The list of image descriptions created for the given paragraphs.
+        """
+        image_descriptions = []
+        for description in descriptions:
+            # for a diffusion model, create the description of the image based on the paragraph
+            image_description = self.get_information(context=description, instruction="Create a subtitle for an image based on the image description provided in the context. Only give me the subtitle.")
+            image_descriptions.append(image_description)
+        return image_descriptions
 
 if __name__ == "__main__":
     agent = ArticleAgent()
@@ -165,14 +158,14 @@ if __name__ == "__main__":
         f"Discuss the innovations of the car {brand}."
     ]
     instruction = "Write a sensational paragraph for an advertisement about a car brand based on the information provided."
-    paragraphs = create_paragraphs(tasks=tasks, instruction=instruction, agent=agent)
+    paragraphs = agent.create_paragraphs(tasks=tasks, instruction=instruction)
     for i, paragraph in enumerate(paragraphs):
         print(f"Task {i + 1}: {tasks[i]}\n")
         print(paragraph)
         print("\n" + "=" * 50 + "\n")
 
-    image_descriptions = create_image_descriptions(paragraphs=paragraphs, agent=agent)
-    subtitles = create_image_subtitles(descriptions=image_descriptions, agent=agent)
+    image_descriptions = agent.create_image_descriptions(paragraphs=paragraphs)
+    subtitles = agent.create_image_subtitles(descriptions=image_descriptions)
     
     
 

@@ -1,0 +1,5 @@
+FROM nvidia/cuda:12.6.2-runtime-ubuntu22.04
+RUN apt -y update && apt -y dist-upgrade && apt -y install git python3.12 python3-pip python3.12-dev && apt -y clean
+ENV PYTHONPATH=/usr/local/lib/python3.12/dist-packages/
+
+
