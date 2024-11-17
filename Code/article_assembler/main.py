@@ -7,7 +7,7 @@ from dependencies import install_pandoc_and_latex
 ############################################
 ## CHANGE ACCORDINGLY ##
 template_path = "article_template.html"
-json_path = "sample_input.json"
+json_path = "../article_agent/output.json"
 ###########################################
 
 # Install dependencies
@@ -17,11 +17,14 @@ print("Dependencies check complete.\n")
 
 car_data = load_car_info(json_path)
 
-car_brand = car_data["car_brand"]
-car_model = car_data["car_model"]
-paragraphs = car_data["content"]["paragraphs"]
-prompts = car_data["content"]["prompts"]
-captions = car_data["content"]["captions"]
+#########
+car_brand = 'BMW' #car_data["car_brand"]
+car_model = 'X5' #car_data["car_model"]
+#########
+
+paragraphs = car_data["paragraphs"]
+prompts = car_data["prompts"]
+captions = car_data["captions"]
 
 figure_paths = []
 
