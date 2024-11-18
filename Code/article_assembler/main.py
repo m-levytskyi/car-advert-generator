@@ -1,19 +1,21 @@
+from dependencies import install_system_dependencies, install_python_requirements
+
+# Install dependencies
+print("Checking and installing dependencies...")
+install_system_dependencies()
+install_python_requirements()
+print("Dependencies check complete.\n")
+
 from json_loader import load_car_info
 from template_filler import populate_template
 from image_generation import generate_image
 from markdown_to_pdf import convert_md_to_pdf
-from dependencies import install_pandoc_and_latex
 
 ############################################
 ## CHANGE ACCORDINGLY ##
 template_path = "article_template.html"
 json_path = "../article_agent/output.json"
 ###########################################
-
-# Install dependencies
-print("Checking and installing dependencies...")
-install_pandoc_and_latex()
-print("Dependencies check complete.\n")
 
 car_data = load_car_info(json_path)
 

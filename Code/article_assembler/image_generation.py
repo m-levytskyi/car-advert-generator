@@ -1,5 +1,6 @@
-from diffusers import StableDiffusionPipeline
 import torch
+from diffusers import StableDiffusionPipeline
+
 
 def generate_image(prompt, output_path="output.png"):
     # Load the pipeline
