@@ -38,7 +38,7 @@ def populate_template(template_file, paragraphs, captions, figure_paths, car_bra
 
     # Save the populated content to a new HTML file
     try:
-        with open("filled_article.html", "w") as file:
+        with open("tmp/filled_article.html", "w") as file:
             file.write(template)
         print("Template populated successfully and saved as 'filled_article.html'")
     except Exception as e:

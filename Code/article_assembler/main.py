@@ -41,5 +41,5 @@ populate_template(template_path, paragraphs, captions, figure_paths, car_brand, 
 
 # Convert to PDF
 print("Converting the populated article to PDF...")
-convert_md_to_pdf("filled_article.html", "article.pdf")
+convert_md_to_pdf("tmp/filled_article.html", "article.pdf")
 print("PDF conversion complete. Check 'article.pdf' for the output.")
