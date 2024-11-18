@@ -1,0 +1,7 @@
+diffusers
+transformers
+torch
+pandas
+pypandoc
+weasyprint
+numpy
