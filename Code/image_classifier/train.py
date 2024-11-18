@@ -3,7 +3,6 @@ import torch
 from torch.utils.data import DataLoader
 import wandb
 import time
-import nvidia_smi
 import dataloader
 import importlib.util
 import tqdm
@@ -13,6 +12,16 @@ import os
 spec = importlib.util.spec_from_file_location("AlexNet", 'alexnet/alexnet.py')
 alexnet = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(alexnet)
+
+#import resnet
+spec = importlib.util.spec_from_file_location("Resnet", 'Resnet50/resnet.py')
+resnet = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(resnet)
+
+#import visiontransformer
+spec = importlib.util.spec_from_file_location("VisionTransformer", 'VisualTransformer/vit.py')
+visiontransformer = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(visiontransformer)
 
 def validateModel(val_model,val_dataloader,amountToValidate):
     print("Evaluation ",end="",flush=True)
@@ -58,14 +67,11 @@ if __name__ == '__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using {device}")
 
-    if(device == "cuda"):
-        nvidia_smi.nvmlInit()
-        nv_handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
-
     # TODO: parse / config file for these arguments
     csv = "../dataset/sort/reduced_dataset.csv"    
     in_ram_dataset=True
     modelname="alexnet"
+
     checkpointdir= f"checkpoints/"           
     os.makedirs(checkpointdir, exist_ok=True)
     run_number = 1
@@ -82,18 +88,21 @@ if __name__ == '__main__':
     if(modelname=="alexnet"):
         model =  alexnet.AlexNet(amount_classes=len(dataset_train.classes)).to(device)
     if(modelname=="resnet"):
-      model =  alexnet.AlexNet(amount_classes=len(dataset_train.classes)).to(device)
+      model =  resnet.Resnet(amount_classes=len(dataset_train.classes)).to(device)
+    if(modelname=="visiontransformer"):
+        model = visiontransformer.VisionTransformer(amount_classes=len(dataset_train.classes)).to(device)
 
     train_loader = DataLoader(dataset_train, batch_size=model.batchsize, shuffle=True, num_workers=0, drop_last=True,pin_memory=True)
     val_loader = DataLoader(dataset_val, batch_size=model.batchsize, shuffle=False, num_workers=0,drop_last=True,pin_memory=True)
     
     #wandb.login()
     wandb.init(
-    project="Image classification",
-    name="DTD_testing_w_Adam",
+    project="Image classification evaluation on DS1",
+    name=f"{modelname}_LR:{model.optimizer.param_groups[0]['lr']}_Epochs:{model.epochs}_BatchSize:{model.batchsize}_
+    Loss:{model.loss.__name__}_Optimizer:{type(model.optimizer).__name__}_Classes:{len(dataset_train.classes)}",
     config={
-    "architecture": "AlexNet",
-    "dataset": "DTD",
+    "architecture": modelname,
+    "dataset": "DS1",
     "epochs": model.epochs,
     "batch_size": model.batchsize
     })
