@@ -19,9 +19,9 @@ def apply_regex_to_csv(file_path, source_column, target_column, regex_pattern):
     print(f"Results written to {file_path}")
 
 # Example usage
-file_path = '/Users/johannesdecker/Downloads/reduced_dataset.csv'
+file_path = '/Users/johannesdecker/Downloads/DS1_Car_Models_3778_sorted_256/reduced_dataset.csv'
 source_column = 'path_to_jpg'
 target_column = 'sub_path'
-regex_pattern = r'([^/]+/[^/]+)$' # pattern captures the last two segments (after the second to last slash) of the path
+regex_pattern = r'([^/]+/[^/]+/[^/]+)$' # pattern captures the last three segments (after the third to last slash) of the path
 
 apply_regex_to_csv(file_path, source_column, target_column, regex_pattern)
