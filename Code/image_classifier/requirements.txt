@@ -6,3 +6,4 @@ scikit-learn
 matplotlib
 pandas
 opencv-python
+transformers

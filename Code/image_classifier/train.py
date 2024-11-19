@@ -70,7 +70,7 @@ if __name__ == '__main__':
     # TODO: parse / config file for these arguments
     csv = "../dataset/sort/reduced_dataset.csv"    
     in_ram_dataset=True
-    modelname="alexnet"
+    modelname="visiontransformer"
 
     checkpointdir= f"checkpoints/"           
     os.makedirs(checkpointdir, exist_ok=True)
@@ -98,8 +98,7 @@ if __name__ == '__main__':
     #wandb.login()
     wandb.init(
     project="Image classification evaluation on DS1",
-    name=f"{modelname}_LR:{model.optimizer.param_groups[0]['lr']}_Epochs:{model.epochs}_BatchSize:{model.batchsize}_
-    Loss:{model.loss.__name__}_Optimizer:{type(model.optimizer).__name__}_Classes:{len(dataset_train.classes)}",
+    name=f"{modelname}_LR:{model.optimizer.param_groups[0]['lr']}_Epochs:{model.epochs}_BatchSize:{model.batchsize}_Loss:{model.loss.__name__}_Optimizer:{type(model.optimizer).__name__}_Classes:{len(dataset_train.classes)}",
     config={
     "architecture": modelname,
     "dataset": "DS1",
@@ -140,8 +139,8 @@ if __name__ == '__main__':
                 if steps < math.ceil(train_data_size/model.batchsize):
                     wandb.log(metrics)       
         
-        validateModel(model,val_loader,-1)
         if(epoch % 5 == 0 or epoch==model.epochs-1):
+            validateModel(model,val_loader,-1)
             torch.save(model.state_dict(), f"{checkpointdir}run{run_number}/{modelname}_epoch{epoch}_loss{epochloss/steps}_weights.pth")
 
 

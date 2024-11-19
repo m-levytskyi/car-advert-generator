@@ -1,7 +1,7 @@
-import torch
 import torch.nn as nn
 import torch.optim as optim
 from transformers import ViTModel, ViTConfig
+import torch.nn.functional as functional
 
 class VisionTransformer(nn.Module):
     def __init__(self, amount_classes):
@@ -17,8 +17,8 @@ class VisionTransformer(nn.Module):
         
         # Model parameters
         self.epochs = 50
-        self.batchsize = 32
-        self.loss = nn.CrossEntropyLoss()
+        self.batchsize = 16
+        self.loss = functional.cross_entropy
         self.optimizer = optim.Adam(self.parameters(), lr=1e-4)
         
     def forward(self, x):
