@@ -7,6 +7,9 @@ import dataloader
 import importlib.util
 import tqdm
 import os
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix, f1_score
 
 #import alexnet
 spec = importlib.util.spec_from_file_location("AlexNet", 'alexnet/alexnet.py')
@@ -49,16 +52,19 @@ def validateModel(val_model,val_dataloader,amountToValidate):
             if(validated>=amountToValidate and amountToValidate >= 1):
                 break
         
-        wandb.log({f"val/img/Confusion Matrix {epoch}": wandb.plot.confusion_matrix(
-            preds=all_preds,
-            y_true=all_labels,
-            class_names=val_dataloader.dataset.classes,
-            title=f"Confusion Matrix Epoch {epoch}"  )
-            })
+        plt.figure(figsize=(10, 8))
+        classes=val_dataloader.dataset.classes
+        sns.heatmap(confusion_matrix(all_labels, all_preds), annot=True, fmt="d", cmap="Blues", xticklabels=classes, yticklabels=classes)
+        plt.xlabel("Predicted Labels")
+        plt.ylabel("True Labels")
+        plt.title(f"Confusion Matrix Epoch {epoch}")
+        wandb.log({f"val/img/Confusion Matrix {epoch}": wandb.Image(plt)})
+        plt.close()
 
         wandb.log({
-        "val/val_loss": val_loss / validated,
-        "val/val_accuracy": correct / validated
+            "val/val_loss": val_loss / validated,
+            "val/val_accuracy": correct / validated,
+            "val/f1_score": f1_score(all_labels, all_preds, average='weighted')
         })
 
         print(f"ended in {(time.time()-startval)/60:.2f}m - Validation Loss: {val_loss / validated:3f}, Validation Accuracy: {correct / validated:.2f}")
@@ -70,7 +76,7 @@ if __name__ == '__main__':
     # TODO: parse / config file for these arguments
     csv = "../dataset/sort/reduced_dataset.csv"    
     in_ram_dataset=True
-    modelname="visiontransformer"
+    modelname="alexnet"
 
     checkpointdir= f"checkpoints/"           
     os.makedirs(checkpointdir, exist_ok=True)
@@ -83,7 +89,7 @@ if __name__ == '__main__':
         run_number += 1
 
     dataset_train = dataloader.CustomCarDataset(csv_file=csv, phase='train', in_memory=in_ram_dataset)
-    dataset_val = dataloader.CustomCarDataset(csv_file=csv, phase='test', in_memory=in_ram_dataset,amount=640)
+    dataset_val = dataloader.CustomCarDataset(csv_file=csv, phase='test', in_memory=in_ram_dataset,amount=640*5)
 
     if(modelname=="alexnet"):
         model =  alexnet.AlexNet(amount_classes=len(dataset_train.classes)).to(device)

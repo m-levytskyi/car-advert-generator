@@ -1,0 +1,9 @@
+autodistill
+autodistill_clip
+autodistill-grounding-dino
+autodistill-yolov8
+roboflow
+clip
+pillow
+opencv-python
+supervision==0.9.0
