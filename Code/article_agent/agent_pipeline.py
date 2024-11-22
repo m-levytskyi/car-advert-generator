@@ -28,7 +28,7 @@ class AgentPipeline:
         """
         if car_type:
             tasks = [
-                f"Write a introductory paragraph about {brand} mentioned in the context of {car_type}.",
+                f"Write a introductory paragraph about {brand} mentioned in the context of {car_type}. Use a specific car model.",
                 f"Descibe a new {car_type} offered by {brand}.",
                 f"Explain the history of {brand} mentioned in the context of {car_type}.",
                 f"Discuss the innovations of the {car_type} {brand}."
@@ -58,11 +58,12 @@ class AgentPipeline:
 
 
 if __name__ == "__main__":
-    agent_pipeline = AgentPipeline(brand='BMW', car_type='SUV')
+    # TODO: autos von anderen Seiten zeigen
+    agent_pipeline = AgentPipeline(brand='Ford', car_type='Hatchback')
     response = agent_pipeline()
     # save json object to a file
 
-    with open('output.json', 'w') as f:
+    with open('Code/article_agent/json/output.json', 'w') as f:
         f.write(response)
 
 
