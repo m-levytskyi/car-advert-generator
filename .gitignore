@@ -5,6 +5,7 @@ __pycache__
 wandb
 
 /Code/dataset/data
+/Code/captum/trained_models
 .venv
 .DS_Store
 
