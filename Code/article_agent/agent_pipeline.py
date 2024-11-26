@@ -61,7 +61,7 @@ class AgentPipeline:
     # make it return a json object
     def __call__(self):
         logging.info(f"Article Agent: Creating paragraphs, image descriptions and subtitles for the tasks: {self.tasks}")
-        paragraphs = filter_out_markdown(self.agent.create_paragraphs(self.tasks, self.instruction))
+        paragraphs = filter_out_markdown(self.agent.create_paragraphs(self.tasks, self.instruction, self.brand, self.car_type))
         image_descriptions = filter_out_markdown(self.agent.create_image_descriptions(paragraphs=paragraphs))
         subtitles = filter_out_markdown(self.agent.create_image_subtitles(descriptions=image_descriptions))
 
