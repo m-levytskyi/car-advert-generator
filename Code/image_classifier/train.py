@@ -21,6 +21,11 @@ spec = importlib.util.spec_from_file_location("Resnet", 'Resnet50/resnet.py')
 resnet = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(resnet)
 
+#import resnetFinetune
+spec = importlib.util.spec_from_file_location("Resnet", 'Resnet50/resnetFinetune.py')
+resnetFine = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(resnetFine)
+
 #import visiontransformer
 spec = importlib.util.spec_from_file_location("VisionTransformer", 'VisualTransformer/vit.py')
 visiontransformer = importlib.util.module_from_spec(spec)
@@ -69,9 +74,21 @@ def validateModel(val_model,val_dataloader,amountToValidate):
 
         print(f"ended in {(time.time()-startval)/60:.2f}m - Validation Loss: {val_loss / validated:3f}, Validation Accuracy: {correct / validated:.2f}")
 
+def configure_device():
+   device = None
+   if torch.backends.mps.is_available():
+      device = torch.device("mps")
+      print("Using MPS")
+   elif torch.cuda.is_available():
+      device = torch.device("cuda")
+      print("Using GPU")
+   else:
+      device = torch.device("cpu")
+      print("Using CPU")
+   return device
+
 if __name__ == '__main__':
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"Using {device}")
+    device = configure_device()
 
     # TODO: parse / config file for these arguments
     csv = "../dataset/sort/reduced_dataset.csv"    
@@ -94,7 +111,9 @@ if __name__ == '__main__':
     if(modelname=="alexnet"):
         model =  alexnet.AlexNet(amount_classes=len(dataset_train.classes)).to(device)
     if(modelname=="resnet"):
-      model =  resnet.Resnet(amount_classes=len(dataset_train.classes)).to(device)
+        model =  resnet.Resnet(amount_classes=len(dataset_train.classes)).to(device)
+    if(modelname=="resnetFinetune"):
+        model =  resnetFine.ResnetFinetuning(amount_classes=len(dataset_train.classes)).to(device)
     if(modelname=="visiontransformer"):
         model = visiontransformer.VisionTransformer(amount_classes=len(dataset_train.classes)).to(device)
 
