@@ -2,7 +2,7 @@ from article_assembler import ArticleAssembler
 
 
 class AssemblerPipeline:
-    def __init__(self, template_path="Code/article_assembler/article_template.html", json_path, images_path, output_pdf_path="Code/article_assembler/output/article.pdf"):
+    def __init__(self, json_path, images_path, output_pdf_path="Code/article_assembler/output/article.pdf", template_path="Code/article_assembler/article_template.html"):
         """
         Initializes the pipeline with paths and configuration.
 

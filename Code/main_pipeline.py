@@ -43,7 +43,7 @@ def run_pipeline():
     images_path = "Code/article_assembler/tmp/imgs" #generated images will be stored here
     output_pdf_path = "Code/article.pdf"
     # Initialize the pipeline
-    assembler = AssemblerPipeline(json_path=json_path, images_path=images_path, output_pdf_path)
+    assembler = AssemblerPipeline(json_path, images_path, output_pdf_path)
     # Set up the environment
     assembler.setup()
     # Run the pipeline
