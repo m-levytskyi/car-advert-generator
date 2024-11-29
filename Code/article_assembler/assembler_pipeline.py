@@ -1,56 +1,71 @@
 from article_assembler import ArticleAssembler
 
-############################################
-## CHANGE ACCORDINGLY ##
-template_path = "article_template.html"
-json_path = "../article_agent/json/output_toyota_coupe.json" #article agent output
-images_path = "tmp/imgs" #generated images will be stored here
-###########################################
 
-# Initialize the assembler
+class AssemblerPipeline:
+    def __init__(self, template_path="Code/article_assembler/article_template.html", json_path, images_path, output_pdf_path="Code/article_assembler/output/article.pdf"):
+        """
+        Initializes the pipeline with paths and configuration.
 
-assembler = ArticleAssembler(template_file=template_path, 
-                            img_dir=images_path)
+        :param template_path: Path to the HTML/Markdown template file.
+        :param json_path: Path to the JSON file containing car data.
+        :param images_path: Directory to store generated images.
+        :param output_pdf_path: Path to save the final PDF.
+        """
+        self.template_path = template_path
+        self.json_path = json_path
+        self.images_path = images_path
+        self.output_pdf_path = output_pdf_path
 
+        self.assembler = ArticleAssembler(template_file=self.template_path, img_dir=self.images_path)
 
-# Install dependencies
-assembler.install_dependencies()
+    def setup(self):
+        """
+        Sets up the environment by installing dependencies and Python requirements.
+        """
+        print("Setting up the environment...")
+        self.assembler.install_dependencies()
+        self.assembler.install_python_requirements()
+        print("Setup complete.\n")
 
-assembler.install_python_requirements()
+    def run_pipeline(self):
+        """
+        Executes the entire pipeline: loading data, generating images, populating the template, and creating the PDF.
+        """
+        print("Loading car data...")
+        car_data = self.assembler.load_json_data(self.json_path)
 
-# Load data
-car_data = assembler.load_json_data(json_path)
+        if car_data:
+            paragraphs = car_data["paragraphs"]
+            prompts = car_data["prompts"]
+            captions = car_data["captions"]
+            car_brand = car_data["brand"]
+            car_type = car_data["car_type"]
 
-if car_data:
+            print(f"Car Brand: {car_brand}, Car Type: {car_type}\n")
 
-    paragraphs = car_data["paragraphs"]
-    prompts = car_data["prompts"]
-    captions = car_data["captions"]
+            # Setup Stable Diffusion
+            print("Setting up Stable Diffusion...")
+            self.assembler.setup_stable_diffusion()
 
-    car_brand = car_data["brand"]
-    car_type = car_data["car_type"]
+            # Generate Images
+            print("Generating images...")
+            figure_paths = []
+            for i, prompt in enumerate(prompts, start=1):
+                fig_path = f"{self.images_path}/figure_{i}.png"
+                print(f"Generating image {i} with prompt: '{prompt}'")
+                self.assembler.generate_image(prompt, fig_path)
+                figure_paths.append(fig_path)
+            print("Image generation complete.\n")
 
-    # Setup Stable Diffusion
-    assembler.setup_stable_diffusion()
+            # Populate the template
+            print("Populating the template...")
+            html_file = self.assembler.populate_template(paragraphs, captions, figure_paths, car_brand, car_type)
+            print("Template populated successfully.\n")
 
-    # TODO:
-    # stable diffusion takes only the first 77 tokens of the prompt
-    # possible fix - compel
-    # https://github.com/damian0815/compel/tree/main/doc
+            # Convert HTML to PDF
+            print("Converting to PDF...")
+            self.assembler.convert_to_pdf(html_file, self.output_pdf_path)
+            print(f"Pipeline complete. PDF saved at {self.output_pdf_path}")
 
-    # Generate Images
-    figure_paths = []
-    for i, prompt in enumerate(prompts, start=1):
-        fig_path = f"{images_path}/figure_{i}.png"
-        print(f"Generating image {i} with prompt: '{prompt}'")
-        assembler.generate_image(prompt, fig_path)
-        figure_paths.append(fig_path)
-    print("Image generation complete.\n")
-
-
-    print('\n\n\n', figure_paths, '\n\n\n')
-    # Populate template
-    html_file = assembler.populate_template(paragraphs, captions, figure_paths, car_brand, car_type)
-
-    # Convert HTML to PDF
-    assembler.convert_to_pdf(html_file, "output/article.pdf")
+        else:
+            print("Error: Failed to load car data.")
