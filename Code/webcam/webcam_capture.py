@@ -48,6 +48,6 @@ class WebcamCapture:
         cap.release()
         cv2.destroyAllWindows()
 
-if __name__ == "__main__":
-    webcam = WebcamCapture("Code/webcam/webcam_image.jpg")
-    webcam.capture_image()
+# if __name__ == "__main__":
+#     webcam = WebcamCapture("Code/webcam/webcam_image.jpg")
+#     webcam.capture_image()
