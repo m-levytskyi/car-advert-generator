@@ -44,9 +44,9 @@ def clean_csv_by_file_paths(csv_file_path, column_name, base_directory):
     return deleted_row_count
 
 # Usage example:
-csv_file_path = '/Users/johannesdecker/Downloads/DS1_Car_Models_3778_sorted_256/reduced_dataset.csv'  # Replace with your CSV file path
+csv_file_path = '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778_sorted_256_adjusted/reduced_dataset_adjusted.csv'  # Replace with your CSV file path
 column_name = 'sub_path'    # Replace with your column name
-base_directory = '/Users/johannesdecker/Downloads/DS1_Car_Models_3778_sorted_256/'  # Replace with your base directory
+base_directory = '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778_sorted_256_adjusted'  # Replace with your base directory
 
 try:
     clean_csv_by_file_paths(csv_file_path, column_name, base_directory)

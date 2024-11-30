@@ -80,7 +80,7 @@ def analyze_csv(file_path, columns_to_consider, output_directory):
             plt.close()
 
 # Example usage
-file_path = "/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778_sorted_256/reduced_dataset.csv"  # Replace with your CSV file path
+file_path = "/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778_sorted_256/reduced_dataset_adjusted.csv"  # Replace with your CSV file path
 columns_to_consider = ["brand", "body_style", "segment"]  # Replace with your column names
 output_directory = "/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778_sorted_256/plots_output"  # Specify your output directory
 analyze_csv(file_path, columns_to_consider, output_directory)

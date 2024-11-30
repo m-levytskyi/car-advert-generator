@@ -55,8 +55,8 @@ def delete_non_matching_subdirectories(csv_file, directory, column_name, distanc
         print("All CSV entries had matching subdirectories.")
 
 # Example usage
-csv_file = '/Users/johannesdecker/Downloads/sorted_brands.csv'  # Path to your .csv file
-directory = '/Users/johannesdecker/Downloads/Car_Models_3778/train'  # Path to your directory containing subdirectories
+csv_file = '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778_sorted_256_adjusted/reduced_dataset_adjusted.csv'  # Path to your .csv file
+directory = '/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1_Car_Models_3778_sorted_256_adjusted/train'  # Path to your directory containing subdirectories
 column_name = 'path'  # The column name from the .csv file to compare against subdirectory names
 
 delete_non_matching_subdirectories(csv_file, directory, column_name)
