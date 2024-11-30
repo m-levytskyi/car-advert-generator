@@ -5,9 +5,9 @@ from webcam.webcam_capture import WebcamCapture
 # a function to classify a car captured on webcam
 # takes a webcam image as input, returns brand + body type
 
-
+from article_agent.article_agent import ArticleAgent
 from article_agent.agent_pipeline import AgentPipeline
-from article_assembler.assembler_pipeline import assemble_article
+from article_assembler.assembler_pipeline import AssemblerPipeline
 
 webcam_img_path = "Code/webcam/webcam_image.jpg"
 

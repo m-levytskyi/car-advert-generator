@@ -1,4 +1,4 @@
-from article_assembler import ArticleAssembler
+from .article_assembler import ArticleAssembler
 
 
 class AssemblerPipeline:
