@@ -91,7 +91,7 @@ if __name__ == '__main__':
     device = configure_device()
 
     # TODO: parse / config file for these arguments
-    csv = "../dataset/sort/reduced_dataset.csv"    
+    csv = "../dataset/Data/reduced_dataset_adjusted.csv"    
     in_ram_dataset=True
     modelname="alexnet"
 
@@ -105,8 +105,15 @@ if __name__ == '__main__':
             break
         run_number += 1
 
-    dataset_train = dataloader.CustomCarDataset(csv_file=csv, phase='train', in_memory=in_ram_dataset)
-    dataset_val = dataloader.CustomCarDataset(csv_file=csv, phase='test', in_memory=in_ram_dataset,amount=640*5)
+    labelrow="body_style"
+    toIgnore=[]
+    equaldist=True
+    dataset_train = dataloader.CustomCarDataset(csv_file=csv, phase='train', in_memory=in_ram_dataset,tolabel=labelrow,equallydistributed=equaldist,ignoreLabels=toIgnore)
+    dataset_val = dataloader.CustomCarDataset(csv_file=csv, phase='test', in_memory=in_ram_dataset,amount=-1,tolabel=labelrow,ignoreLabels=toIgnore)
+
+    if(len(dataset_train.classes)!=len(dataset_val.classes)):
+        print(f"Error: Training and Validation Dataset don't have the same amount of classes!")
+        exit()
 
     if(modelname=="alexnet"):
         model =  alexnet.AlexNet(amount_classes=len(dataset_train.classes)).to(device)
@@ -123,7 +130,7 @@ if __name__ == '__main__':
     #wandb.login()
     wandb.init(
     project="Image classification evaluation on DS1",
-    name=f"{modelname}_LR:{model.optimizer.param_groups[0]['lr']}_Epochs:{model.epochs}_BatchSize:{model.batchsize}_Loss:{model.loss.__name__}_Optimizer:{type(model.optimizer).__name__}_Classes:{len(dataset_train.classes)}",
+    name=f"{modelname}_LR:{model.optimizer.param_groups[0]['lr']}_Epochs:{model.epochs}_BatchSize:{model.batchsize}_Loss:{model.loss.__name__}_Optimizer:{type(model.optimizer).__name__}_Classes:{len(dataset_train.classes)}_Label:{labelrow}_Equalydist:{equaldist}",
     config={
     "architecture": modelname,
     "dataset": "DS1",
