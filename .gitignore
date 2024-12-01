@@ -5,7 +5,7 @@
 __pycache__
 wandb
 
-/Code/dataset/data
+/Code/dataset/data/DS1_Car_Models_3778_sorted_256_adjusted.zip
 /Code/captum/trained_models
 /Code/captum/OLD
 /Code/captum/DS1_Car_Models_3778_sorted_256_adjusted
