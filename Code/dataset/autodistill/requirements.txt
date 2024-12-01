@@ -7,3 +7,4 @@ clip
 pillow
 opencv-python
 supervision==0.9.0
+scikit-learn

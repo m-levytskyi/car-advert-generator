@@ -13,7 +13,6 @@ import os
 import cv2
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model, preprocess = clip.load("ViT-B/16", device=device)
 
 ontology=CaptionOntology({
       "sports_car": "sports_car",
