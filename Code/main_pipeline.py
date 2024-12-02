@@ -38,10 +38,11 @@ def run_pipeline():
         f.write(response)
 
 
-    print("Step 4: Assembling article...")
     json_path = "Code/article_agent/json/output.json" #article agent output
     images_path = "Code/article_assembler/tmp/imgs" #generated images will be stored here
     output_pdf_path = "Code/article.pdf"
+
+    print("Step 4: Assembling article...")
     # Initialize the pipeline
     assembler = AssemblerPipeline(json_path, images_path, output_pdf_path)
     # Set up the environment
