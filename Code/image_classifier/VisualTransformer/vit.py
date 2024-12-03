@@ -11,6 +11,19 @@ class VisionTransformer(nn.Module):
         config = ViTConfig.from_pretrained("google/vit-base-patch16-224-in21k")
         config.num_labels = amount_classes
         self.model = ViTModel(config)
+
+        ### All layers are trained now ###
+
+        # # Freeze all ViT layers (to train the classifier head only):
+        # for param in self.model.parameters():
+        #     param.requires_grad = False
+
+        # OR
+
+        # # Freeze all but the last X layers
+        # x = 2 # to train the last two layers + classifier head
+        # for param in self.model.encoder.layer[:x].parameters():
+        #     param.requires_grad = False
         
         # Classifier head
         self.classifier = nn.Linear(self.model.config.hidden_size, amount_classes)
