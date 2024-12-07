@@ -1,4 +1,5 @@
 import os
+import time
 from dotenv import load_dotenv
 from typing import Optional, List
 # https://python.langchain.com/docs/integrations/chat/groq/
@@ -38,13 +39,28 @@ class ArticleAgent:
         Get the search result from DuckDuckGo based on the query provided.
 
         Args:
-            query (str): The query to be searched on DuckDuckGo.
+            brand (str): The brand to be included in the search query.
+            type (str): The type to be included in the search query.
 
         Returns:
-            str: The search result obtained from DuckDuckGo.
+            str: The search result obtained from DuckDuckGo, or an empty string if retries fail.
         """
         query = f"Whats the new {brand} {type} model?"
-        return self.ddg_service.invoke(query)
+        for attempt in range(2):  # Try twice: initial attempt + 1 retry
+            try:
+                # Add a time delay to avoid getting blocked by rate limiting
+                time.sleep(1)
+                return self.ddg_service.invoke(query)
+            except Exception as e:
+                print(f"Attempt {attempt + 1} failed: {e}")
+                # If the first attempt fails, wait before retrying
+                if attempt == 0:  # First failure
+                    time.sleep(5)
+        # If all attempts fail, return an empty string
+        return ""
+
+        
+
 
     def get_information_with_sources(self, brand: None, type: None, task: str, instruction: str = "Perform the task based only on the context provided. Look at the prior responses as a reference.", prior_responses: str = "") -> str:
         """
