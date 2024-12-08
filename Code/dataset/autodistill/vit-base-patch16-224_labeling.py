@@ -1,18 +1,23 @@
 import os
 import json
 import torch
-import clip
+from transformers import ViTFeatureExtractor, ViTForImageClassification
 from PIL import Image
 from tqdm import tqdm
 
-image_folder = f'/Users/johannesdecker/Downloads/images.cv_33mdprbld2vsvfc8l3obl'
+# Path to the image folder
+image_folder = '/Users/johannesdecker/ADL_DATASETS/DS2'
 
 # Check if GPU is available
-device = torch.device("mps" if torch.backends.mps.is_available() else("cuda" if torch.cuda.is_available() else "cpu"))
+device = torch.device("mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.is_available() else "cpu"))
 print(f"Using device: {device}")
 
-# Load the CLIP model and preprocessing function
-model, preprocess = clip.load("ViT-L/14", device=device) # "ViT-B/32"
+# Load the ViT model and feature extractor
+model_name = "google/vit-base-patch16-224"
+feature_extractor = ViTFeatureExtractor.from_pretrained(model_name)
+model = ViTForImageClassification.from_pretrained(model_name)
+model.to(device)
+model.eval()
 
 brands = [
     "volkswagen", "toyota", "renault", "nissan", "hyundai", 
@@ -33,13 +38,8 @@ body_styles = [
 
 classes = body_styles
 
-# Create text inputs for each class
-text_inputs = torch.cat([clip.tokenize(f"a photo of a {c}") for c in classes]).to(device)
-
-# Compute text features
-with torch.no_grad():
-    text_features = model.encode_text(text_inputs)
-    text_features /= text_features.norm(dim=-1, keepdim=True)
+# Create a dictionary to map the model's output indices to the classes
+class_dict = {i: label for i, label in enumerate(classes)}
 
 # Dictionary to store image labels
 labels = {}
@@ -51,29 +51,30 @@ image_list = os.listdir(image_folder)
 for image_name in tqdm(image_list, desc="Labeling images"):
     image_path = os.path.join(image_folder, image_name)
     try:
-        image = preprocess(Image.open(image_path)).unsqueeze(0).to(device)
+        # Preprocess the image
+        image = Image.open(image_path).convert("RGB")
+        inputs = feature_extractor(images=image, return_tensors="pt")
+        inputs = {k: v.to(device) for k, v in inputs.items()}
     except Exception as e:
         print(f"Error processing {image_name}: {e}")
         continue
 
     with torch.no_grad():
-        # Compute image features
-        image_features = model.encode_image(image)
-        image_features /= image_features.norm(dim=-1, keepdim=True)
-
-        # Compute similarity between image and text features
-        similarities = (100.0 * image_features @ text_features.T).softmax(dim=-1)
-        best_match = similarities.argmax(dim=-1).item()
-        confidence = similarities[0, best_match].item()
+        # Get model predictions
+        outputs = model(**inputs)
+        logits = outputs.logits
+        probabilities = torch.nn.functional.softmax(logits, dim=-1)
+        best_match = torch.argmax(probabilities, dim=-1).item()
+        confidence = probabilities[0, best_match].item()
 
         # Save the best match and its confidence
         labels[image_name] = {
-            "label": classes[best_match],
+            "label": class_dict.get(best_match, "unknown"),
             "confidence": confidence
         }
 
 # Save labels to a JSON file in the image folder
-labels_path = os.path.join(image_folder, "body_styles_image_labels.json")
+labels_path = os.path.join(image_folder, "image_labels_vit-base-patch16-224.json")
 with open(labels_path, "w") as f:
     json.dump(labels, f, indent=4)
 
