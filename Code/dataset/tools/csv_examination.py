@@ -92,7 +92,7 @@ def analyze_csvs_in_directory(directory_path, columns_to_consider, output_direct
             plt.close()
 
 # Example usage
-directory_path = "/Users/johannesdecker/adl-gruppe-1/Code/dataset/data"  # Replace with your CSV files directory
+directory_path = "/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS2+DS3_plots_output"  # Replace with your CSV files directory
 columns_to_consider = ["brand", "body_style"]  # Replace with your column names
-output_directory = "/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS1+DS2+DS3_plots_output"  # Specify your output directory
+output_directory = "/Users/johannesdecker/adl-gruppe-1/Code/dataset/data/DS2+DS3_plots_output"  # Specify your output directory
 analyze_csvs_in_directory(directory_path, columns_to_consider, output_directory)
