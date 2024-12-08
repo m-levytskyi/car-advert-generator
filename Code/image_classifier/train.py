@@ -105,11 +105,12 @@ if __name__ == '__main__':
             break
         run_number += 1
 
-    labelrow="body_style"
-    toIgnore=[]
+    labelcolumn="brand"
+    toIgnore=["FERRARI"]
     equaldist=True
-    dataset_train = dataloader.CustomCarDataset(csv_file=csv, phase='train', in_memory=in_ram_dataset,tolabel=labelrow,equallydistributed=equaldist,ignoreLabels=toIgnore)
-    dataset_val = dataloader.CustomCarDataset(csv_file=csv, phase='test', in_memory=in_ram_dataset,amount=-1,tolabel=labelrow,ignoreLabels=toIgnore)
+    augment=True
+    dataset_train = dataloader.CustomCarDataset(csv_file=csv, phase='train', in_memory=in_ram_dataset,tolabel=labelcolumn,equallydistributed=equaldist,ignoreLabels=toIgnore,augmentation=augment)
+    dataset_val = dataloader.CustomCarDataset(csv_file=csv, phase='test', in_memory=in_ram_dataset,amount=-1,tolabel=labelcolumn,ignoreLabels=toIgnore)
 
     if(len(dataset_train.classes)!=len(dataset_val.classes)):
         print(f"Error: Training and Validation Dataset don't have the same amount of classes!")
@@ -130,7 +131,7 @@ if __name__ == '__main__':
     #wandb.login()
     wandb.init(
     project="Image classification evaluation on DS1",
-    name=f"{modelname}_LR:{model.optimizer.param_groups[0]['lr']}_Epochs:{model.epochs}_BatchSize:{model.batchsize}_Loss:{model.loss.__name__}_Optimizer:{type(model.optimizer).__name__}_Classes:{len(dataset_train.classes)}_Label:{labelrow}_Equalydist:{equaldist}",
+    name=f"{modelname}_LR:{model.optimizer.param_groups[0]['lr']}_Epochs:{model.epochs}_BatchSize:{model.batchsize}_Loss:{model.loss.__name__}_Optimizer:{type(model.optimizer).__name__}_Classes:{len(dataset_train.classes)}_Label:{labelcolumn}_Equalydist:{equaldist}_Augmentation:{augment}_Trainingimages:{len(dataset_train)}",
     config={
     "architecture": modelname,
     "dataset": "DS1",
