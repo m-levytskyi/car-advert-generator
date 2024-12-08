@@ -1,17 +1,13 @@
 from webcam.webcam_capture import WebcamCapture
-
-# from image_classifier ...
-# TODO 
-# a function to classify a car captured on webcam
-# takes a webcam image as input, returns brand + body type
-
+from image_classifier.classify import CarClassifier
 from article_agent.article_agent import ArticleAgent
 from article_agent.agent_pipeline import AgentPipeline
 from article_assembler.assembler_pipeline import AssemblerPipeline
-from image_classifier.classify import CarClassifier
+
+import pandas as pd
 
 webcam_img_path = "Code/webcam/webcam_image.jpg"
-csv = "Code/dataset/Data/reduced_dataset_adjusted.csv" #needed to get possible brands and body types
+csv = "Code/dataset/data/reduced_dataset_adjusted.csv" #needed to get possible brands and body types
 model_path = "Code/image_classifier/VisualTransformer/vit_car_classifier_kaggle.pth"
 
 json_path = "Code/article_agent/json/output.json" #article agent output
@@ -24,20 +20,10 @@ def run_pipeline():
     webcam.capture_image()
 
     print("\n Step 2: Classifying image...")
-    # TODO
-    # calling a classification function
-    # otput example: 
-    # result = {
-    #     'brand' : 'BMW',
-    #     'body_type' : 'SUV'
-    # }
-    # print(f"Classification result: {result}")
-
     df = pd.read_csv(csv)
-    brand_classes = sorted(df[brand_col].unique())
-    body_type_classes = sorted(df[body_style_col].unique())
+    brand_classes = sorted(df['brand'].unique())
+    body_type_classes = sorted(df['body_style'].unique())
 
-    # Initialisierung des Klassifikators
     classifier = CarClassifier(
         model_path=model_path,
         brand_classes=brand_classes,
