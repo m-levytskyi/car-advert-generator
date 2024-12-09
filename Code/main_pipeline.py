@@ -7,15 +7,17 @@ from article_assembler.assembler_pipeline import AssemblerPipeline
 import pandas as pd
 
 webcam_imgs_path = "Code/webcam/webcam_images"
-csv = "Code/dataset/data/reduced_dataset_adjusted.csv" #needed to get possible brands and body types
+#csv = "Code/dataset/sort/reduced_dataset.csv" #needed to get possible brands and body types
+
+csv= "Code/dataset/data/reduced_dataset_adjusted.csv"
 model_path = "Code/image_classifier/Resnet50/trained_model_on_test.pth"
 
 json_path = "Code/article_agent/json/output.json" #article agent output
 images_path = "Code/article_assembler/tmp/imgs" #generated images will be stored here
 output_pdf_path = "Code/article.pdf"
  
-model_name = "visiontransformer" #or "alexnet", "resnet"
-model_path = "Code/image_classifier/VisualTransformer/vit_car_classifier_kaggle.pth" #.pth file
+model_name = "alexnet" #"visiontransformer", "alexnet" or "resnet"
+model_path = "Code/image_classifier/alexnet/alexnet_body-style_epoch80_loss0.04466895014047623_weights.pth" #.pth file
 
 def run_pipeline():
     print("Step 1: Capturing image...")
@@ -27,21 +29,21 @@ def run_pipeline():
     brand_classes = sorted(df['brand'].unique())
     body_type_classes = sorted(df['body_style'].unique())
 
+    print(f"\n\n\n body_type_classes: {body_type_classes} \n\n\n")
+
     classifier = CarClassifier(
         model_name=model_name,
         model_path=model_path,
-        brand_classes=brand_classes,
         body_type_classes=body_type_classes
     )
 
-    results = classifier.classify_folder(images_path)
-    print("Aggregated Results:")
-    print(f"Most Common Brand: {results['most_common_brand']}")
-    print(f"Most Common Body Type: {results['most_common_body_type']}")
+    result = classifier.classify_folder(webcam_imgs_path)
+    print(result)
 
+    brand_dummy = "BMW"
 
     print("Step 3: Creating JSON...")
-    agent_pipeline = AgentPipeline(brand=result['brand'], car_type=result['body_type'])
+    agent_pipeline = AgentPipeline(brand=brand_dummy, car_type=result['most_common_body_type'])
     response = agent_pipeline()
     # save json object to a file
     with open(json_path, "w") as f:
