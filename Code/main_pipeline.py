@@ -13,6 +13,9 @@ model_path = "Code/image_classifier/Resnet50/trained_model_on_test.pth"
 json_path = "Code/article_agent/json/output.json" #article agent output
 images_path = "Code/article_assembler/tmp/imgs" #generated images will be stored here
 output_pdf_path = "Code/article.pdf"
+ 
+model_name = "visiontransformer" #or "alexnet", "resnet"
+model_path = "Code/image_classifier/VisualTransformer/vit_car_classifier_kaggle.pth" #.pth file
 
 def run_pipeline():
     print("Step 1: Capturing image...")
@@ -25,14 +28,16 @@ def run_pipeline():
     body_type_classes = sorted(df['body_style'].unique())
 
     classifier = CarClassifier(
+        model_name=model_name,
         model_path=model_path,
         brand_classes=brand_classes,
         body_type_classes=body_type_classes
     )
 
-    result = classifier.classify(webcam_imgs_path)
-    print(f"Brand: {result['brand']}")
-    print(f"Body type: {result['body_type']}")
+    results = classifier.classify_folder(images_path)
+    print("Aggregated Results:")
+    print(f"Most Common Brand: {results['most_common_brand']}")
+    print(f"Most Common Body Type: {results['most_common_body_type']}")
 
 
     print("Step 3: Creating JSON...")
