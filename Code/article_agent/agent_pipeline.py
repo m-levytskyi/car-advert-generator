@@ -20,11 +20,10 @@ def filter_out_markdown(text: list[str]) -> list[str]:
 
 class AgentPipeline:
     def __init__(self, brand: str, car_type=None, 
-                 instruction: str='Write a sensational paragraph for an advertisement about a car brand based on the information provided.'):
+):
         self.brand = brand
         self.car_type = car_type
         self.tasks = self.create_tasks(brand, car_type)
-        self.instruction = instruction
         self.agent = ArticleAgent()
         logging.basicConfig(level=logging.INFO,
                             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -42,18 +41,18 @@ class AgentPipeline:
         """
         if car_type:
             tasks = [
-                f"Write a introductory paragraph about {brand} mentioned in the context of {car_type}. Use a specific car model.",
-                f"Descibe a new {car_type} offered by {brand}.",
-                f"Explain the history of {brand} mentioned in the context of {car_type}.",
-                f"Discuss the innovations of the {car_type} {brand}."
+                f"Write a introductory paragraph for an article about a {brand} {car_type}.",
+                f"Write a sensational paragraph for an article about a new {car_type} offered by {brand}.",
+                f"Write a sensational paragraph for an article about the history of {brand}.",
+                f"Write a sensational paragraph for an article about the innovations of the {car_type} of {brand}."
             ]
             return tasks
         
-        tasks = tasks = [
-            f"Write a introductory paragraph about {brand}.",
-            f"Descibe a new car offered by {brand}.",
-            f"Explain the history of {brand}.",
-            f"Discuss the innovations of the car {brand}."
+        tasks = [
+            f"Write a introductory paragraph for an article about {brand}.",
+            f"Write a sensational paragraph for an article about the new models offered by {brand}.",
+            f"Write a sensational paragraph for an article about the history of {brand}.",
+            f"Write a sensational paragraph for an article about the innovations of the cars of {brand}."
         ]
         return tasks
     
@@ -61,7 +60,7 @@ class AgentPipeline:
     # make it return a json object
     def __call__(self):
         logging.info(f"Article Agent: Creating paragraphs, image descriptions and subtitles for the tasks: {self.tasks}")
-        paragraphs = filter_out_markdown(self.agent.create_paragraphs(self.tasks, self.instruction, self.brand, self.car_type))
+        paragraphs = filter_out_markdown(self.agent.create_paragraphs(self.tasks, self.brand, self.car_type))
         image_descriptions = filter_out_markdown(self.agent.create_image_descriptions(paragraphs=paragraphs))
         subtitles = filter_out_markdown(self.agent.create_image_subtitles(descriptions=image_descriptions))
 

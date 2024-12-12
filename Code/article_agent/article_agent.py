@@ -14,7 +14,7 @@ from agent_tools import search_duckduckgo, fetch_wikipedia_context
 
 
 class ArticleAgent:
-    def __init__(self, list_of_tools: list = None):
+    def __init__(self, list_of_tools: list = [fetch_wikipedia_context, search_duckduckgo]):
         """
         Initialize the ArticleAgent with the large language model, Wikipedia retriever, and DuckDuckGo search.
         """
@@ -62,6 +62,8 @@ class ArticleAgent:
             ai_msg = self.llm_with_tools.invoke(messages)
 
         print(f"Number of tool calls: {len(ai_msg.tool_calls)}")
+        if len(ai_msg.tool_calls) == 0:
+            return None
 
         messages.append(ai_msg)
 
@@ -72,7 +74,7 @@ class ArticleAgent:
 
         return self.llm_with_tools.invoke(messages)
     
-    def get_information_with_sources_fallback(self, brand: None, type: None, task: str, instruction: str = "Perform the task based only on the context provided. Look at the prior responses as a reference.", prior_responses: str = "") -> str:
+    def get_information_with_sources_fallback(self, brand: None, type: None, task: str, instruction: str = "Perform the task based only on the context provided. Look at the prior responses as a reference.", prior_responses: str = "") -> AIMessage:
         """
         Get information based on the task and instruction provided, using all tools.
 
@@ -94,7 +96,7 @@ class ArticleAgent:
         return self.llm.invoke(prompt)
 
     
-    def create_paragraphs(self, tasks: List[str]) -> List[str]:
+    def create_paragraphs(self, tasks: List[str], brand: str = None, car_type: str = None) -> List[str]:
         """
         Create paragraphs for the given tasks.
 
@@ -109,7 +111,7 @@ class ArticleAgent:
         for task in tasks:
             print(f"\n\nTask: {task}")
             paragraph = self.get_information_with_sources(task=task)
-            if len(paragraph.content) == 0:
+            if paragraph is None:
                 print("Model did not call any tools and failed to generate a response. Fallback to using all tools.")
                 paragraph = self.get_information_with_sources_fallback(brand, car_type, task, prior_responses=responses)
             paragraphs.append(paragraph.content)
