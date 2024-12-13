@@ -6,6 +6,9 @@ __pycache__
 wandb
 
 /Code/dataset/data/DS1_Car_Models_3778_sorted_256_adjusted.zip
+/Code/dataset/data/DS1_Car_Models_3778_sorted_256_adjusted
+/Code/dataset/data/DS2_confidence_and_brand_selected.zip
+/Code/dataset/data/DS2_confidence_and_brand_selected
 /Code/dataset/Data/DS2_b2000
 /Code/dataset/Data/DS2_b2000_labels
 /Code/captum/trained_models
