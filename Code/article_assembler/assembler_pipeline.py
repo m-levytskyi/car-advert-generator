@@ -18,13 +18,16 @@ class AssemblerPipeline:
 
         self.assembler = ArticleAssembler(template_file=self.template_path, img_dir=self.images_path)
 
-    def setup(self):
+    def setup(self, py_reqs=True, os_reqs=True):
         """
         Sets up the environment by installing dependencies and Python requirements.
         """
         print("Setting up the environment...")
-        self.assembler.install_dependencies()
-        self.assembler.install_python_requirements()
+        if os_reqs:
+            self.assembler.install_dependencies()
+
+        if py_reqs:    
+            self.assembler.install_python_requirements()
         print("Setup complete.\n")
 
     def run_pipeline(self):
@@ -65,7 +68,7 @@ class AssemblerPipeline:
             # Convert HTML to PDF
             print("Converting to PDF...")
             self.assembler.convert_to_pdf(html_file, self.output_pdf_path)
-            print(f"Pipeline complete. PDF saved at {self.output_pdf_path}")
+            print(f"Assembler Pipeline complete. PDF saved at {self.output_pdf_path}")
 
         else:
             print("Error: Failed to load car data.")

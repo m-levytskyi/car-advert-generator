@@ -1,6 +1,9 @@
 import cv2
 import os
 
+# needed to get rid of the warning in output
+os.environ["QT_STYLE_OVERRIDE"] = "fusion"
+
 class WebcamCapture:
     def __init__(self, save_dir="captured_images"):
         """
