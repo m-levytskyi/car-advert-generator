@@ -9,7 +9,12 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.messages import HumanMessage, AIMessage
 
 
-from agent_tools import search_duckduckgo, fetch_wikipedia_context
+try:
+    # for main pipeline
+    from .agent_tools import search_duckduckgo, fetch_wikipedia_context 
+except ImportError:
+    # for direct script execution
+    from agent_tools import search_duckduckgo, fetch_wikipedia_context
 
 
 
