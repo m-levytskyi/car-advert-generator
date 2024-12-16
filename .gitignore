@@ -17,6 +17,7 @@ wandb
 /Code/captum/DS1_Car_Models_3778_sorted_256_adjusted
 .venv
 .DS_Store
+/Code/dataset/DATA/
 
 Code/image_classifier/Resnet50/Data
 Code/image_classifier/Resnet50/wandb
