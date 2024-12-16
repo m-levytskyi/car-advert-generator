@@ -18,11 +18,13 @@ wandb
 .venv
 .DS_Store
 /Code/dataset/DATA/
+/Code/dataset/car_interiors/
 
 Code/image_classifier/Resnet50/Data
 Code/image_classifier/Resnet50/wandb
 
 *.pth
+*.pt
 
 #AlexNet
 Code/image_classifier/alexnet/checkpoints/
