@@ -7,9 +7,13 @@ from PIL import Image
 from collections import Counter
 
 class CarClassifier:
-    def __init__(self, model_name, model_path, body_type_classes, device=None):
+    def __init__(self, model_name, model_path, brand_classes, body_type_classes, device=None):
         self.device = device if device else ("cuda" if torch.cuda.is_available() else "cpu")
+
+        self.brand_classes = brand_classes
         self.body_type_classes = body_type_classes
+        self.total_classes = len(brand_classes) + len(body_type_classes)
+
         self.model = self._load_model(model_name, model_path)
 
         self.preprocess = transforms.Compose([
@@ -22,7 +26,7 @@ class CarClassifier:
         model_map = {
             "alexnet": ('Code/image_classifier/alexnet/alexnet.py', "AlexNet"),
             "resnet": ('Code/image_classifier/Resnet50/resnet.py', "Resnet"),
-            "visiontransformer": ('Code/image_classifier/VisualTransformer/vit.py', "VisionTransformer")
+            "vit": ('Code/image_classifier/VisualTransformer/vit.py', "VisionTransformer")
         }
 
         if model_name not in model_map:
@@ -36,7 +40,7 @@ class CarClassifier:
 
         model_class = getattr(module, class_name)
 
-        model = model_class(amount_classes=len(self.body_type_classes))  # Adjusted for body type only
+        model = model_class(amount_classes=self.total_classes)
 
         state_dict = torch.load(model_path, map_location=self.device)
         model.load_state_dict(state_dict)
@@ -51,14 +55,21 @@ class CarClassifier:
         input_tensor = self.preprocess(image).unsqueeze(0).to(self.device)
         
         with torch.no_grad():
-            body_type_logits = self.model(input_tensor)  # Single output for body type
+            logits = self.model(input_tensor)
+            probs = torch.nn.functional.softmax(logits, dim=1)
             
-            body_type_probs = torch.nn.functional.softmax(body_type_logits, dim=1)
-            predicted_body_type = torch.argmax(body_type_probs, dim=1).item()
+            # Split probabilities for brands and body types
+            brand_probs = probs[0, :len(self.brand_classes)]
+            body_probs = probs[0, len(self.brand_classes):]
+            
+            predicted_brand = torch.argmax(brand_probs).item()
+            predicted_body = torch.argmax(body_probs).item()
         
         return {
-            "body_type": self.body_type_classes[predicted_body_type],
-            "body_type_probabilities": body_type_probs.cpu().numpy()
+            "brand": self.brand_classes[predicted_brand],
+            "brand_probabilities": brand_probs.cpu().numpy(),
+            "body_type": self.body_type_classes[predicted_body],
+            "body_type_probabilities": body_probs.cpu().numpy()
         }
 
     def classify_folder(self, folder_path):
@@ -88,20 +99,14 @@ class CarClassifier:
         return self.aggregate_predictions(predictions)
 
     def aggregate_predictions(self, predictions):
-        """
-        Aggregates predictions to find the most common body type.
-
-        Parameters:
-        - predictions (list): List of prediction dictionaries.
-
-        Returns:
-        - dict: Aggregated results with the most common body type.
-        """
+        brand_types = [pred["brand"] for pred in predictions]
         body_types = [pred["body_type"] for pred in predictions]
         
-        most_common_body_type = Counter(body_types).most_common(1)[0][0] if body_types else None
+        most_common_brand = Counter(brand_types).most_common(1)[0][0] if brand_types else None
+        most_common_body = Counter(body_types).most_common(1)[0][0] if body_types else None
         
         return {
-            "most_common_body_type": most_common_body_type,
+            "most_common_brand": most_common_brand,
+            "most_common_body_type": most_common_body,
             "all_predictions": predictions
         }
