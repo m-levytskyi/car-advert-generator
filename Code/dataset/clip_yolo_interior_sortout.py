@@ -46,8 +46,8 @@ class CarInteriorDetector:
             print(f"CLIP score for '{text[:30]}...': {score.item():.4f}")
 
         # Calculate interior confidence using only positive prompts
-        interior_confidence = clip_scores[:4].mean().item()
-        exterior_confidence = clip_scores[4:].mean().item()
+        interior_confidence = clip_scores[:4].sum().item() 
+        exterior_confidence = clip_scores[4:].sum().item()
         
         print(f"Interior confidence: {interior_confidence:.4f}")
         print(f"Exterior confidence: {exterior_confidence:.4f}")
@@ -68,6 +68,7 @@ class CarInteriorDetector:
         print(f"Detected objects: {detected_objects}")
         
         # Weighted object scoring
+        #TODO update weights
         object_weights = {
             'steering wheel': 2.0,
             'dashboard': 2.0,
@@ -125,15 +126,15 @@ class EnhancedCarInteriorDetector(CarInteriorDetector):
         # Weighted combination
         enhanced_score = (
             0.55 * base_score +
-            0.15 * depth_score +
-            0.05 * edge_score +
-            0.15 * color_score +
+            0.10 * depth_score +
+            0.10 * edge_score +
+            0.10 * color_score +
             0.05 * symmetry_score +
-            0.05 * (1 - blur_score)  # Invert blur score
+            0.10 * (1 - blur_score)  # Invert blur score
         )
         print(f"Enhanced Score: {enhanced_score}")
         
-        return enhanced_score > 0.3, enhanced_score
+        return enhanced_score > 0.35, enhanced_score
     
     def _get_depth_score(self, image):
     # Uses DPT model to analyze 3D space patterns
@@ -220,7 +221,9 @@ def show_interior_images(
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
 
+
     # Process images
+    img_count = 0
     for root, _, files in os.walk(dataset_path):
         for filename in files:
             if filename.lower().endswith(('.jpg', '.jpeg', '.png')):
@@ -233,8 +236,10 @@ def show_interior_images(
                 print(f"Interior image: {is_interior}")
                 print(f"Confidence: {confidence} \n")
 
+                img_count += 1
+                print(f"\n Images processed: {img_count}")
+                print(f"Interior images found: {len(interior_images)} of {max_images} \n")
 
-                
                 if is_interior:
                     interior_images.append((image_path, confidence))
                     print("Added to interior images")
@@ -268,14 +273,15 @@ def show_interior_images(
 
 if __name__ == "__main__":
     # Example usage
-    dataset_path = "DATA/small"
+    dataset_path = "Code/dataset/DATA/train"
+
+    # "DATA/small"
     # 21 interior images + 21 exterior images
 
     results = show_interior_images(
         dataset_path=dataset_path,
         confidence_threshold=0.6,
-        max_images=42,
-        output_dir="car_interiors",
+        max_images=5,
+        output_dir="Code/dataset/DATA/car_interiors_train",
         display=False
     )
-
