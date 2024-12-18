@@ -2,10 +2,50 @@
 
 This chapter contains a description of the steps necessary to install and use the system. 
 
+## Prerequisites
+
+- Python 3.8+
+- CUDA-capable GPU (recommended)
+- Webcam
+
 ## Installation 
 
 [Describe the steps necessary to install the system, starting with cloning the git repository.]
 
+1. Clone the repository:
+```bash
+git clone https://gitlab.lrz.de/simon-hampp/adl-gruppe-1.git
+cd adl-gruppe-1
+```
+
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
 ## Usage 
 
-[Describe in detail the steps required to create an article].
+1. Navigate to project root:
+```bash
+cd path/to/adl-gruppe-1
+```
+
+2. Run the pipeline:
+```bash
+python Code/pipeline.py
+```
+
+3. Follow the interactive prompts:
+
+- Webcam window will open
+- Press SPACE to capture car images
+- Press ENTER when finished capturing
+- Press ESC to abort
+
+4. Wait for processing.
+
+5. Output locations:
+
+- **Final Article**: Code/article.pdf
+- Captured images: Code/webcam/webcam_images/
+- Processed images: Code/webcam/processed_images/
