@@ -12,10 +12,51 @@ This chapter describes the architecture of the system.
 
 ### Webcam 
 
+**Role**: Frontend interface for capturing car images  
+**Data Flow**: Webcam → Image files  
+
+**Implementation**:
+
+- OpenCV (`cv2`) based video capture system
+- Real-time preview with interactive controls
+- Configurable image storage
+
+**Design Decisions**:
+
+- Keyboard-driven interface for simplicity:
+    - Space: capture image
+    - Enter: process
+    - Esc: abort
+- Raw image storage for preprocessing flexibility
+- Configurable output paths
+
+
 ### Object Detector 
 
 [Also describe the used architectures (see team-project presentation) in short (most important advances)]
 
+
+#### AlexNet
+
+#### ResNet
+
+#### Visual Transformer
+**Architecture**: Vision Transformer (ViT)
+
+- Base: google/vit-base-patch16-224-in21k
+- Patch Size: 16x16 pixels
+- Resolution: 224x224
+- Features:
+  - Attention-based image processing
+  - Pretrained transformer backbone
+  - Custom classification head
+
+**Design Decisions**:
+
+- Configurable layer freezing for transfer learning
+- Flexible classification head for different tasks
+- Adam optimizer with 1e-4 learning rate
+- 50 epochs training schedule
 
 ::: {.callout-tip}
 You can reference literature from bibtex files (references.bib). Example: Use @knuth84 for additional discussion of literate programming.
@@ -29,10 +70,56 @@ You can reference literature from bibtex files (references.bib). Example: Use @k
 
 [Also describe potential article templates/structures you designed]
 
+**Role**: Generate structured car articles from templates  
+**Data Flow**: JSON data + Images → HTML → PDF
+
+**Implementation**:
+
+- Template-based article generation
+- HTML/PDF conversion pipeline
+- Configurable output formatting
+
+**Template Evolution**:
+
+1. Initial Markdown Template:
+   - Simple, text-focused structure
+   - Basic image placement
+   - Limited styling options
+
+2. Enhanced HTML Template:
+   - Rich styling with CSS
+   - Flexible layout system
+   - Dark theme with accent colors
+   - Responsive image positioning (left/right)
+   - Custom typography and spacing
+
+**Design Decisions**:
+
+- HTML over Markdown for visual control
+- Modular template structure
+- Dark theme
+- Responsive image layouts
+
 ### Diffusion Model 
 
 [Also describe the used diffusion model]
 
+**Role**: Generate car images
+
+**Implementation**:
+
+- Model: CompVis/stable-diffusion-v1-4
+- Hardware acceleration support
+
+**Design Decisions**:
+
+- Pipeline architecture for batch processing
+- Automatic device selection (CUDA/CPU)
+- Configurable image parameters:
+  - Resolution: 512x512
+  - Inference steps: 50
+  - Guidance scale: 7.5
+- Error handling for failed generations
 
 
 
