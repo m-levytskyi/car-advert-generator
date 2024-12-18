@@ -17,7 +17,6 @@ wandb
 /Code/captum/DS1_Car_Models_3778_sorted_256_adjusted
 .venv
 .DS_Store
-# /Code/dataset/DATA/
 /Code/dataset/car_interiors/
 
 Code/image_classifier/Resnet50/Data
@@ -40,6 +39,7 @@ Code/image_classifier/VisualTransformer/data/
 Code/image_classifier/VisualTransformer/wandb/
 Code/dataset/Data/DS1_vorläufig_Car_Models_3778/test
 Code/dataset/Data/DS1_vorläufig_Car_Models_3778/train
+/Code/dataset/DATA/
 
 #Article Assembler
 Code/article_assembler/agent_output.txt
