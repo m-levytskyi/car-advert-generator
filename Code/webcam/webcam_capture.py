@@ -30,7 +30,7 @@ class WebcamCapture:
             return
 
         print(
-            "Instructions:\n"
+            "\n === Instructions: === \n"
             "- Point the webcam at an object and press SPACE to record an image.\n"
             "- Press ENTER to start the generation process.\n"
             "- Press ESC to exit without starting the process.\n"

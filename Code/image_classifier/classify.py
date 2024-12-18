@@ -7,12 +7,18 @@ from PIL import Image
 from collections import Counter
 
 class CarClassifier:
-    def __init__(self, model_name, model_path, brand_classes, body_type_classes, device=None):
+    def __init__(self, model_name, model_path, brand_classes=None, body_type_classes=None, classifier_type="combined", device=None):
         self.device = device if device else ("cuda" if torch.cuda.is_available() else "cpu")
+        self.classifier_type = classifier_type
 
-        self.brand_classes = brand_classes
-        self.body_type_classes = body_type_classes
-        self.total_classes = len(brand_classes) + len(body_type_classes)
+        if classifier_type == "brand":
+            self.classes = brand_classes
+        elif classifier_type == "body":
+            self.classes = body_type_classes
+        else:  # combined
+            self.brand_classes = brand_classes
+            self.body_type_classes = body_type_classes
+            self.total_classes = len(brand_classes) + len(body_type_classes)
 
         self.model = self._load_model(model_name, model_path)
 
@@ -40,37 +46,36 @@ class CarClassifier:
 
         model_class = getattr(module, class_name)
 
-        model = model_class(amount_classes=self.total_classes)
+        num_classes = len(self.classes) if self.classifier_type != "combined" else self.total_classes
+        model = model_class(amount_classes=num_classes)
 
         state_dict = torch.load(model_path, map_location=self.device)
         model.load_state_dict(state_dict)
 
-        model.eval()
         model.to(self.device)
+        model.eval()
 
         return model
 
     def classify(self, image_path):
-        image = Image.open(image_path).convert("RGB")
-        input_tensor = self.preprocess(image).unsqueeze(0).to(self.device)
+        image = Image.open(image_path).convert('RGB')
+        image_tensor = self.preprocess(image).unsqueeze(0).to(self.device)
         
         with torch.no_grad():
-            logits = self.model(input_tensor)
-            probs = torch.nn.functional.softmax(logits, dim=1)
-            
-            # Split probabilities for brands and body types
-            brand_probs = probs[0, :len(self.brand_classes)]
-            body_probs = probs[0, len(self.brand_classes):]
-            
-            predicted_brand = torch.argmax(brand_probs).item()
-            predicted_body = torch.argmax(body_probs).item()
+            output = self.model(image_tensor)
+            probabilities = torch.nn.functional.softmax(output[0], dim=0)
+            predicted_class = torch.argmax(probabilities).item()
         
-        return {
-            "brand": self.brand_classes[predicted_brand],
-            "brand_probabilities": brand_probs.cpu().numpy(),
-            "body_type": self.body_type_classes[predicted_body],
-            "body_type_probabilities": body_probs.cpu().numpy()
-        }
+        if self.classifier_type == "brand":
+            return {
+                "brand": self.classes[predicted_class],
+                "probabilities": probabilities.cpu().numpy()
+            }
+        elif self.classifier_type == "body":
+            return {
+                "body_type": self.classes[predicted_class],
+                "probabilities": probabilities.cpu().numpy()
+            }
 
     def classify_folder(self, folder_path):
         """
@@ -99,14 +104,17 @@ class CarClassifier:
         return self.aggregate_predictions(predictions)
 
     def aggregate_predictions(self, predictions):
-        brand_types = [pred["brand"] for pred in predictions]
-        body_types = [pred["body_type"] for pred in predictions]
-        
-        most_common_brand = Counter(brand_types).most_common(1)[0][0] if brand_types else None
-        most_common_body = Counter(body_types).most_common(1)[0][0] if body_types else None
-        
-        return {
-            "most_common_brand": most_common_brand,
-            "most_common_body_type": most_common_body,
-            "all_predictions": predictions
-        }
+        if self.classifier_type == "brand":
+            brand_types = [pred["brand"] for pred in predictions]
+            most_common_brand = Counter(brand_types).most_common(1)[0][0] if brand_types else None
+            return {
+                "most_common_brand": most_common_brand,
+                "all_predictions": predictions
+            }
+        elif self.classifier_type == "body":
+            body_types = [pred["body_type"] for pred in predictions]
+            most_common_body = Counter(body_types).most_common(1)[0][0] if body_types else None
+            return {
+                "most_common_body_type": most_common_body,
+                "all_predictions": predictions
+            }

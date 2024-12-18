@@ -9,16 +9,20 @@ import pandas as pd
 
 webcam_imgs_path = "Code/webcam/webcam_images"
 
-# csv has 5 body types and 22 brands
-csv= "Code/dataset/data/reduced_dataset_adjusted.csv"
+# csv has 5 body styles and 22 brands
+csv = "Code/dataset/data/reduced_dataset_adjusted.csv"
 
 json_path = "Code/article_agent/json/output.json" #article agent output
 images_path = "Code/article_assembler/tmp/imgs" #generated images will be stored here
 output_pdf_path = "Code/article.pdf"
  
 model_name = "alexnet" #"vit", "alexnet" or "resnet"
-# weights with 27(5+22) classes needed
-model_path = "Code/image_classifier/alexnet/alexnet_27classes.pth" #.pth file
+
+# 22 Classes - brands
+# FIXME weights now have 23 classes, forced to add Ferrari to the list
+weights_brand = "Code/image_classifier/alexnet/alexnet_epoch89_bestTrainLoss_bestValAccuracy.pth"
+# 5 Classes - body styles
+weights_body = "Code/image_classifier/alexnet/alexnet_body-style_epoch80_loss0.04466895014047623_weights.pth"
 
 def run_pipeline():
     """
@@ -37,45 +41,61 @@ def run_pipeline():
     brand_classes = sorted(df['brand'].unique())
     body_type_classes = sorted(df['body_style'].unique())
 
+
+    # FIXME! Ferrari is not in the dataset, but it is in the weights file
+    brand_classes.append("FERRARI")
+    
+
     print("\nClass Mapping Verification:")
     print("Brand classes:", brand_classes)
     print("Body type classes:", body_type_classes)
     
-    # Add debug prints for model loading
-    print(f"\nLoading model: {model_name}")
-    print(f"Model path: {model_path}")
-    print(f"Total classes: {len(brand_classes) + len(body_type_classes)}")
-
-    classifier = CarClassifier(
+    # Create separate classifiers for brand and body type
+    brand_classifier = CarClassifier(
         model_name=model_name,
-        model_path=model_path,
-        body_type_classes=body_type_classes,
-        brand_classes=brand_classes
+        model_path=weights_brand,
+        brand_classes=brand_classes,
+        classifier_type="brand"
     )
 
-    result = classifier.classify_folder(webcam_imgs_path)
-    car_type = result['most_common_body_type']
-    brand = result['most_common_brand']
-   
-    # Get probabilities from first prediction
-    first_pred = result['all_predictions'][0]
-    brand_probs = first_pred['brand_probabilities']
-    body_probs = first_pred['body_type_probabilities']
-    
-    # Find highest probabilities
-    brand_confidence = float(max(brand_probs)) * 100
-    body_confidence = float(max(body_probs)) * 100
-    
-    print("\n=== Classification Results ===")
-    print(f"Brand:     {brand:<10} (confidence: {brand_confidence:.1f}%)")
-    print(f"Body Type: {car_type:<10} (confidence: {body_confidence:.1f}%)")
-    print("===========================\n")
+    body_classifier = CarClassifier(
+        model_name=model_name,
+        model_path=weights_body,
+        body_type_classes=body_type_classes,
+        classifier_type="body"
+    )
 
-    print("Top 3 Brand Predictions:")
+    # Get predictions from both classifiers
+    brand_result = brand_classifier.classify_folder(webcam_imgs_path)
+    body_result = body_classifier.classify_folder(webcam_imgs_path)
+
+    brand = brand_result['most_common_brand']
+    car_type = body_result['most_common_body_type']
+
+    # Get probabilities from first predictions
+    brand_probs = brand_result['all_predictions'][0]['probabilities']
+    body_probs = body_result['all_predictions'][0]['probabilities']
+    
+
+    # Calculate confidence scores
+    brand_confidence = float(brand_probs.max()) * 100
+    body_confidence = float(body_probs.max()) * 100
+
+    print("\n=== Classification Results ===")
+    print(f"Brand:     {brand:<15} (confidence: {brand_confidence:.1f}%)")
+    print(f"Body Type: {car_type:<15} (confidence: {body_confidence:.1f}%)")
+    print("===========================")
+
+    print("\nTop 3 Brand Predictions:")
     brand_indices = (-brand_probs).argsort()[:3]
     for idx in brand_indices:
-        print(f"{brand_classes[idx]:<10}: {brand_probs[idx]*100:.1f}%")
+        print(f"{brand_classes[idx]:<15}: {brand_probs[idx]*100:.1f}%")
 
+    print("\nTop 3 Body Type Predictions:")
+    body_indices = (-body_probs).argsort()[:3]
+    for idx in body_indices:
+        print(f"{body_type_classes[idx]:<15}: {body_probs[idx]*100:.1f}%")
+    print("===========================\n")
 
     """
     Article Agent
