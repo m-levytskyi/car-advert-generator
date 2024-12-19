@@ -1,8 +1,19 @@
 # Domain
 [describe the chosen article domain, e.g. ikea-like user manuals or cook books, ...]
 
-## Article Structure  
-[How is the generated article structured?]
+## Article Structure
+
+The generated article follows a consistent structure designed for automotive advertisements:
+
+1. **Header**: Car brand and model title with "Future of Driving" tagline
+2. **Introduction**: Opening section with initial vehicle overview
+3. **New Model Overview**: Design aesthetics and key model highlights
+4. **Brand Heritage**: Company legacy and historical achievements
+5. **Innovative Featurest**: Advanced technology and unique selling points
+
+The layout alternates between text content and supporting images, with figures placed left and right for visual balance. Each image includes a descriptive caption.
+
+The article uses a dark theme with contrasting elements and concludes with a call-to-action button for test drive bookings.
 
 ## Data Set 
 [Describe the data set (source, size, examples, ...)]
