@@ -14,8 +14,32 @@ This chapter contains important evaluation results for the modules of the system
 
 ## Diffusion Model 
 
-[Show some generation results and timings]
+Run on Google Colab with T4 GPU.
+
+Image Generation: 106.87 seconds
+
+Average time per image: 26.72 seconds
+
+![Generated Car Image.](images/figure_1.png){#fig-diffusion}
+
+![Generated Car Image.](images/figure_2.png){#fig-diffusion}
+
+![Generated Car Image.](images/figure_3.png){#fig-diffusion}
+
+![Generated Car Image.](images/figure_4.png){#fig-diffusion}
 
 ## Article Assembler 
 
-[Show some generation examples and timings that show how long the entire generation process takes]
+Google Colab with T4 GPU was used for the article assembly.
+
+```bash
+=== Pipeline Timing Summary ===
+Data Loading: 0.00 seconds
+Stable Diffusion Setup: 55.94 seconds
+Image Generation: 106.87 seconds
+Average time per image: 26.72 seconds
+Template Population: 0.00 seconds
+PDF Conversion: 2.53 seconds
+Total Pipeline Time: 165.35 seconds
+===========================
+```
