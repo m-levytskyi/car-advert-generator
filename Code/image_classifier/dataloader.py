@@ -9,14 +9,14 @@ import numpy as np
 import torch
 
 def load_single_image(row, label_map, tolabel_row, augmentindex):
-    path_to_img = os.path.join("../../", row.iloc[6])
+    path_to_img = os.path.join("../../", row["path_to_jpg"])
     if not os.path.exists(path_to_img):
         raise Exception(f"File not found: {path_to_img}")
 
     image = cv2.imdecode(np.fromfile(path_to_img, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    image = cv2.resize(image, (256, 256))
+    # image = cv2.resize(image, (256, 256)) # images are preprocessed to this resolution
     h, w, _ = image.shape
     startx, starty = 0, 0
 

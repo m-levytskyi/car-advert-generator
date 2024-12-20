@@ -90,24 +90,17 @@ def configure_device():
 if __name__ == '__main__':
     device = configure_device()
 
-    checkpointdir= f"checkpoints/"           
-    os.makedirs(checkpointdir, exist_ok=True)
-    run_number = 1
-    while True:
-        run_dir = os.path.join("checkpoints", f"run{run_number}")
-        if not os.path.exists(run_dir):
-            os.makedirs(run_dir)
-            break
-        run_number += 1
-
     # TODO: parse / config file for these arguments
-    csv = "../dataset/Data/reduced_dataset_adjusted.csv"    
     in_ram_dataset=True
     modelname="alexnet"
-    labelcolumn="brand"
+    labelcolumn="body_style"
+    dataset="DS1+2"
+    conf=0.8
+    csv = f"../dataset/sort/{dataset}_{labelcolumn}_{conf}conf.csv"
     toIgnore=["FERRARI"]
-    equaldist=True
-    augment=True
+    equaldist=False
+    augment=False
+
     dataset_train = dataloader.CustomCarDataset(csv_file=csv, phase='train', in_memory=in_ram_dataset,tolabel=labelcolumn,equallydistributed=equaldist,ignoreLabels=toIgnore,augmentation=augment)
     dataset_val = dataloader.CustomCarDataset(csv_file=csv, phase='test', in_memory=in_ram_dataset,amount=-1,tolabel=labelcolumn,ignoreLabels=toIgnore)
 
@@ -127,10 +120,12 @@ if __name__ == '__main__':
     train_loader = DataLoader(dataset_train, batch_size=model.batchsize, shuffle=True, num_workers=0, drop_last=True,pin_memory=True)
     val_loader = DataLoader(dataset_val, batch_size=model.batchsize, shuffle=False, num_workers=0,drop_last=True,pin_memory=True)
     
+    runname = f"{modelname}_Dataset_{dataset}_{conf}conf_LR_{model.optimizer.param_groups[0]['lr']}_Epochs_{model.epochs}_BatchSize_{model.batchsize}_Loss_{model.loss.__name__}_Optimizer_{type(model.optimizer).__name__}_Classes_{len(dataset_train.classes)}_Label_{labelcolumn}_Equalydist_{equaldist}_Augmentation_{augment}_Trainingimages_{len(dataset_train)}"
+
     #wandb.login()
     wandb.init(
-    project="Image classification evaluation on DS1",
-    name=f"{modelname}_LR:{model.optimizer.param_groups[0]['lr']}_Epochs:{model.epochs}_BatchSize:{model.batchsize}_Loss:{model.loss.__name__}_Optimizer:{type(model.optimizer).__name__}_Classes:{len(dataset_train.classes)}_Label:{labelcolumn}_Equalydist:{equaldist}_Augmentation:{augment}_Trainingimages:{len(dataset_train)}",
+    project="Image classification evaluation on DS1+2",
+    name= runname, 
     config={
     "architecture": modelname,
     "dataset": "DS1",
@@ -138,6 +133,16 @@ if __name__ == '__main__':
     "batch_size": model.batchsize
     })
         
+    checkpointdir= f"checkpoints/"           
+    os.makedirs(checkpointdir, exist_ok=True)
+    run_number = 1
+    while True:
+        run_dir = os.path.join("checkpoints/", f"{runname}_{run_number}")
+        if not os.path.exists(run_dir):
+            os.makedirs(run_dir)
+            break
+        run_number += 1
+
     train_data_size = len(train_loader.dataset)
     print("Train data contains", train_data_size,"images.")
     print("Validation data contains", len(val_loader.dataset),"images.")
