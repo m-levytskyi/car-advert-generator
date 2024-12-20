@@ -90,11 +90,6 @@ def configure_device():
 if __name__ == '__main__':
     device = configure_device()
 
-    # TODO: parse / config file for these arguments
-    csv = "../dataset/Data/reduced_dataset_adjusted.csv"    
-    in_ram_dataset=True
-    modelname="alexnet"
-
     checkpointdir= f"checkpoints/"           
     os.makedirs(checkpointdir, exist_ok=True)
     run_number = 1
@@ -105,6 +100,10 @@ if __name__ == '__main__':
             break
         run_number += 1
 
+    # TODO: parse / config file for these arguments
+    csv = "../dataset/Data/reduced_dataset_adjusted.csv"    
+    in_ram_dataset=True
+    modelname="alexnet"
     labelcolumn="brand"
     toIgnore=["FERRARI"]
     equaldist=True

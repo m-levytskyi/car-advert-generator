@@ -3,9 +3,7 @@ import os
 from autodistill_grounding_dino import GroundingDINO
 from autodistill.detection import CaptionOntology
 import torch
-
-import torch
-import os
+import platform
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -42,20 +40,22 @@ DATASET_DIR_PATH = f'../Data/DS2_b2000_labels/'
 # Iterate over the subdirectories
 from torch.amp import autocast
 
-with autocast("cuda"):
-  for root, dirs, files in os.walk(IMAGE_DIR_PATH):
+print("Python version: " + str(platform.python_version()))
+
+for root, dirs, files in os.walk(IMAGE_DIR_PATH):
       for dir_name in dirs:
         print(f"Subdirectory: {os.path.join(root, dir_name)}")
 
         input = os.path.join(root, dir_name)
         output = os.path.join(DATASET_DIR_PATH, dir_name)
 
-        base_model = GroundingDINO(ontology=ontology)
+        with autocast("cuda"):
+          base_model = GroundingDINO(ontology=ontology)
 
-        if hasattr(base_model, 'model'):
-          base_model.model = base_model.model.to(device)
+          if hasattr(base_model, 'model'):
+            base_model.model = base_model.model.to(device)
 
-        dataset = base_model.label(
-          input_folder=input,
-          output_folder=output,
-         extension=".jpg")
+          dataset = base_model.label(
+            input_folder=input,
+            output_folder=output,
+          extension=".jpg")

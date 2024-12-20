@@ -1,58 +1,25 @@
 from ultralytics import YOLO
 import torch
 import os
-import sys
 import pandas as pd
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 from torchvision import transforms
-from contextlib import contextmanager
-import logging
+import cv2
+import numpy as np
 
 class CustomCarDataset(Dataset):
-    def __init__(self, csv_file, transform, in_memory=False):
+    def __init__(self, csv_file, transform):
         self.data = pd.read_csv(csv_file)
         self.transform = transform
-        self.labels = sorted(self.data['brand'].unique())
-        self.label_map = {label: idx for idx, label in enumerate(self.labels)}
-        self.in_memory = in_memory
-
-        # If in_memory is True, preload all images
-        if self.in_memory:
-            self.images = []
-            self.preload_images()
-
-    def preload_images(self):
-        """Load all images into memory."""
-        all=len(self.data)
-        print(f"{all} images")
-        imagescounter=0
-        for idx, row in self.data.iterrows():
-            path_to_img = os.path.join("../../../",row['path_to_jpg'])
-
-            # Check if the image file exists
-            if not os.path.exists(path_to_img):
-                raise Exception(f"File not found: {path_to_img}")
-
-            # Load and store the image
-            image = Image.open(path_to_img).convert('RGB')
-            if self.transform:
-                image = self.transform(image)
-            imagescounter+=1
-            print(f"image {imagescounter} from {all} with shape {image.shape} loaded")
-            self.images.append((image, self.label_map[row['brand']]))
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
-        if self.in_memory:
-            # If in_memory is True, return preloaded image
-            image, label = self.images[idx]
-        else:
             # Load image from disk
             row = self.data.iloc[idx]
-            path_to_img = os.path.join("../../../",row['path_to_jpg'])
+            path_to_img = os.path.join("DS2_confidence_and_brand_selected/",row['image'])
 
             # Check if the image file exists
             if not os.path.exists(path_to_img):
@@ -68,7 +35,7 @@ class CustomCarDataset(Dataset):
             # Get the label
             label = idx
 
-        return image, label
+            return image, label
 
 if __name__ == '__main__':
     manualEvaluation=False # toggle manually to see "bad" images
@@ -78,19 +45,21 @@ if __name__ == '__main__':
 
     model = YOLO("yolo11x.pt")
 
-    csv_path = "../Data/DS1_vorläufig_Car_Models_3778/correct.csv"
-    csv = pd.read_csv(csv_path)
-    output_file = "reduced_dataset.csv"
+    confidence = 0
+    type="brand_30"
+    csv_path = f"DS2_{type}.csv"
+    output_file = f"DS2_segmented_{type}_{confidence}conf"
+    output_folder = f"DS2_segmented_{type}_{confidence}conf/"
 
+    csv = pd.read_csv(csv_path)
     dataset = CustomCarDataset(csv_file=csv_path, transform=transforms.ToTensor())
     loader = DataLoader(dataset, batch_size=64, shuffle=True, num_workers=0, pin_memory=True)
 
     all_images=len(loader.dataset)
-    useful=0
 
+    useful=0
     rows_new_csv = []
     sorted_out= []
-
     counter=0
     for img, row in loader:
             img = img.to(device)
@@ -101,18 +70,70 @@ if __name__ == '__main__':
             for index in range(len(output)):
                 if output[index].boxes is not None and len(output[index].boxes) > 0:
                     class_indices = output[index].boxes.cls.long()
-                    if (class_indices == 2).any():
-                        useful+=1
+                    confidence_scores = output[index].boxes.conf
+                    
+                    # Get indices where the class is "car" (class index 2)
+                    car_indices = (class_indices == 2).nonzero(as_tuple=True)[0]
+                    
+                    # Proceed if at least one "car" is detected with confidence > 0.8
+                    car_indices = car_indices[confidence_scores[car_indices] > confidence]  # Filter indices with confidence > 0.8
+                    if len(car_indices) > 0:
+                        # Calculate areas of the bounding boxes
+                        areas = [
+                            (output[index].boxes.xywhn[i, 2] * img.shape[3]) *  # width
+                            (output[index].boxes.xywhn[i, 3] * img.shape[2])   # height
+                            for i in car_indices
+                        ]
+                        
+                        # Find the index of the car with the largest bounding box
+                        largest_car_idx = car_indices[areas.index(max(areas))]
+                        
+                        # Get the bounding box for the largest car
+                        bounding_boxes = output[index].boxes.xywhn[largest_car_idx]
+                        x_center, y_center, width, height = bounding_boxes[0], bounding_boxes[1], bounding_boxes[2], bounding_boxes[3]
+
+                        # Convert normalized coordinates to absolute pixel coordinates
+                        img_width, img_height = img.shape[3], img.shape[2]  # Shape: (batch, channels, height, width)
+                        x_center *= img_width
+                        y_center *= img_height
+                        width *= img_width
+                        height *= img_height
+
+                        xmin = int(x_center - width / 2)
+                        ymin = int(y_center - height / 2)
+                        xmax = int(x_center + width / 2)
+                        ymax = int(y_center + height / 2)
+
+                        # Ensure bounding box coordinates are within image boundaries
+                        xmin = max(0, xmin)
+                        ymin = max(0, ymin)
+                        xmax = min(img_width, xmax)
+                        ymax = min(img_height, ymax)
+
+                        # Convert the tensor image to a NumPy array
+                        img_np = img[index].permute(1, 2, 0).cpu().numpy()  # Convert to HWC format
+                        img_np = (img_np * 255).astype(np.uint8)  # Scale pixel values to 0-255
+
+                        # Crop and resize the bounding box region
+                        cropped_img = img_np[ymin:ymax, xmin:xmax]  # Crop the region
+                        resized_img = cv2.resize(cropped_img, (256, 256))  # Resize to 256x256
+
+                        save_path = os.path.join(output_folder,csv.iloc[row[index]]['image'])
+                        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+                        cv2.imwrite(save_path, resized_img)
+
+                        useful += 1
                         rows_new_csv.append(csv.iloc[row[index]])
                     else:
-                        if(manualEvaluation):
+                        if manualEvaluation:
                             sorted_out.append(csv.iloc[row[index]])
 
             counter+=len(img)
             print(f"Processed {counter} from {all_images} images -> {"{:.2f}".format(counter/all_images*100)}%")
 
-    print(f"{useful} of {all_images} kept -> {"{:.2f}".format(useful/all_images)}%")
+    print(f"{useful} of {all_images} kept -> {"{:.2f}".format(useful/all_images*100)}%")
     newcsv = pd.DataFrame(rows_new_csv)
+    output_file = f"{output_file}_{int(useful/all_images*100)}%.csv"
     newcsv.to_csv(output_file, index=False)
     
     if(manualEvaluation):
