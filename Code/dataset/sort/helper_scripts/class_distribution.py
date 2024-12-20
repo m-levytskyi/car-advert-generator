@@ -28,6 +28,6 @@ def plot_brand_occurrences(csv_path, output_graph,class_type):
     plt.show()
 
 # Example usage
-csv_path = "../DS1+2_brand_0conf.csv"
+csv_path = "../DS1+2_body_style_0conf_cut.csv"
 output_graph = csv_path+ ".png"
-plot_brand_occurrences(csv_path, output_graph,"brand")
+plot_brand_occurrences(csv_path, output_graph,"body_style")
