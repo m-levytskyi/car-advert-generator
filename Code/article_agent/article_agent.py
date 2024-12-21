@@ -4,22 +4,31 @@ from dotenv import load_dotenv
 from typing import Optional, List
 from langchain_groq import ChatGroq
 from langchain_core.output_parsers import StrOutputParser
+from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain import hub
 from langchain.agents import AgentExecutor, create_react_agent
 
-from agent_tools import search_duckduckgo, fetch_wikipedia_context
+from langchain import hub
+from langchain.agents import AgentExecutor, load_tools
+from langchain.agents.format_scratchpad import format_log_to_str
+from langchain.agents.output_parsers import (
+    ReActJsonSingleInputOutputParser,
+)
+from langchain_community.llms import HuggingFaceEndpoint
+from langchain_community.chat_models.huggingface import ChatHuggingFace
+from langchain.tools.render import render_text_description
+
+
+from agent_tools import search_duckduckgo, search_wikipedia
 from langchain.agents import AgentExecutor
-from langchain_core.prompts import ChatPromptTemplate
-
-
-
 
 
 class ArticleAgent:
-    def __init__(self, list_of_tools: list = [fetch_wikipedia_context, search_duckduckgo]):
+    def __init__(self, list_of_tools: list = [search_wikipedia, search_duckduckgo]):
         """
         Initialize the ArticleAgent with the large language model, Wikipedia retriever, and DuckDuckGo search.
         """
@@ -31,7 +40,7 @@ class ArticleAgent:
         self.langsmith_token: Optional[str] = os.getenv("LANGSMITH_API_KEY")
 
         # Initialize the Groq language model
-        self.llm = ChatGroq(
+        self.gr_llm = ChatGroq(
             api_key=self.gq_token,
             model="llama3-8b-8192",
             # model="llama-3.3-70b-specdec", # better model but slower and has a lower token limit
@@ -41,16 +50,44 @@ class ArticleAgent:
             max_retries=2,
         )
 
+        self.hf_token: Optional[str] = os.getenv("HUGGING_FACE_TOKEN")
+
+        # Initialize the language model
+        self.hf_llm = HuggingFaceEndpoint(
+            repo_id="HuggingFaceH4/zephyr-7b-beta",
+            task="text-generation",
+            max_new_tokens=1024,
+            do_sample=False,
+            repetition_penalty=1.03,
+        )
+
         self.tools = list_of_tools
 
-        self.llm_with_tools = self.llm.bind_tools(self.tools)
+        # setup tools
+        tools = list_of_tools
 
-        self.prompt = hub.pull("hwchase17/react")
-        self.prompt.template = 'Answer the following questions as best you can. You have access to the following tools:\n\n{tools}\n\nUse the following format:\n\nQuestion: the input question you must answer\nThought: you should always think about what to do\nAction: the action to take, should be one of [{tool_names}]\nAction Input: the input to the action\nObservation: the result of the action\n... (this Thought/Action/Action Input/Observation can repeat 3 times)\nThought: I now know the final answer\nFinal Answer: the final answer to the original input question\n\nBegin!\n\nQuestion: {input}\nThought:{agent_scratchpad}'
-        self.agent = create_react_agent(llm=self.llm, prompt=self.prompt, tools=self.tools)
+        # setup ReAct style prompt
+        prompt = hub.pull("hwchase17/react-json")
+        prompt = prompt.partial(
+            tools=render_text_description(tools),
+            tool_names=", ".join([t.name for t in tools]),
+        )
+
+
+        # define the agent
+        chat_model_with_stop = self.hf_llm.bind(stop=["\nObservation"])
+        agent = (
+            {
+                "input": lambda x: x["input"],
+                "agent_scratchpad": lambda x: format_log_to_str(x["intermediate_steps"]),
+            }
+            | prompt
+            | chat_model_with_stop
+            | ReActJsonSingleInputOutputParser()
+        )
 
         # instantiate AgentExecutor
-        self.agent_executor = AgentExecutor(agent=self.agent, tools=self.tools, verbose=True, handle_parsing_errors=True, max_iterations=4, return_intermediate_steps=True)
+        self.agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True, max_iterations=4, return_intermediate_steps=True)
 
     def token_in_string(self, string: str) -> int:
         """
@@ -85,55 +122,12 @@ class ArticleAgent:
                 HumanMessage(f"Prior Paragraphs: {prior_responses}"),
                 HumanMessage(task),
             ]).format_prompt()
-            return self.llm.invoke(prompt.to_messages())
+            return self.gr_llm.invoke(prompt.to_messages())
         except Exception as e:
             print(f"Error in LLM with agent: {e}")
             return None
 
 
-    def get_information_with_sources(self, task: str = "", prior_responses: str = "") -> AIMessage:
-        """
-        Get information based on the task and instruction provided, using Wikipedia and DuckDuckGo as tools.
-
-        Args:
-            task (str): The task to be performed, in our context it is advised to mention brand and type in the task (e.g., "Write a introductory paragraph about a BMW M5.").
-            prior_responses (str): Prior responses to be used as context.
-
-        Returns:
-            str: The answer generated by the model.
-        """
-        try: 
-            # Create the prompt
-            query = f"Use the tools you have (wikipedia and duckduckgo) to answer this: {task}"
-            
-            system_message = SystemMessage("You are an article writer. You have to write an article given a specific task. Always answer in this format:\"Paragraph: ...\"")
-
-
-            messages = [system_message, HumanMessage(query)]
-            ai_msg = self.llm_with_tools.invoke(messages)
-            # If the model does not call any tools, retry once.
-            if len(ai_msg.tool_calls) == 0:
-                time.sleep(1) # To avoid getting blocked by rate limiting
-                ai_msg = self.llm_with_tools.invoke(messages)
-
-            print(f"Number of tool calls: {len(ai_msg.tool_calls)}")
-            if len(ai_msg.tool_calls) == 0:
-                return None
-
-            messages.append(ai_msg)
-
-            for tool_call in ai_msg.tool_calls:
-                selected_tool = {"search_duckduckgo": search_duckduckgo, "fetch_wikipedia_context": fetch_wikipedia_context}[tool_call["name"].lower()]
-                tool_msg = selected_tool.invoke(tool_call)
-                messages.append(tool_msg)
-
-            # TODO: Add prior responses as context to the prompt
-
-            return self.llm_with_tools.invoke(messages)
-        except Exception as e:
-            print(f"Error in LLM with toolcalling: {e}")
-            return None
-    
     def get_information_with_sources_fallback(self, brand: None, type: None, task: str, instruction: str = "Perform the task based only on the context provided. Look at the prior responses as a reference.", prior_responses: str = "") -> AIMessage:
         """
         Get information based on the task and instruction provided, using all tools.
@@ -147,16 +141,18 @@ class ArticleAgent:
             str: The answer generated by the model.
         """
         try:
-            tool_res_0 = self.tools[0].invoke({"brand": brand, "type": type})
-            tool_res_1 = self.tools[1].invoke({"brand": brand, "type": type})
+            tool_res_0 = self.tools[0].invoke({"searchstring": brand + " " + type})
+            tool_res_1 = self.tools[1].invoke({"searchstring": brand + " " + type})
             
 
             prompt = f"{instruction} \nPrior Responses: {prior_responses} \nContext: \n{tool_res_0}\n{tool_res_1} \nTask: {task}"
             
 
-            return self.llm.invoke(prompt)
+            return self.gr_llm.invoke(prompt)
         except Exception as e:
             print(f"Error: {e}")
+            return ""
+
 
 
     
@@ -178,13 +174,14 @@ class ArticleAgent:
             if paragraph is None:
                 print("Model failed to generate a response. Fallback to using all tools.")
                 paragraph = self.get_information_with_sources_fallback(brand, car_type, task, prior_responses=responses)
-
-            # see if paragraph has content attribute
             if not hasattr(paragraph, "content") or paragraph.content == "":
                 print("Model failed to generate a response. Fallback to using all tools.")
                 paragraph = self.get_information_with_sources_fallback(brand, car_type, task, prior_responses=responses)
-
-            paragraphs.append(paragraph.content)
+            
+            if hasattr(paragraph, "content"):
+                paragraphs.append(paragraph.content)
+            else:
+                paragraphs.append(paragraph)
             responses += paragraph.content + "\n"
         return paragraphs
     
@@ -211,7 +208,7 @@ class ArticleAgent:
         chain = (
             {"context": RunnablePassthrough()}
             | prompt
-            | self.llm
+            | self.gr_llm
             | StrOutputParser()
         )
 
@@ -255,7 +252,7 @@ class ArticleAgent:
         return image_descriptions
 
 if __name__ == "__main__":
-    tools = [search_duckduckgo, fetch_wikipedia_context]
+    tools = [search_duckduckgo, search_wikipedia]
     agent = ArticleAgent(list_of_tools=tools)
     brand = 'BMW'
     car_type = 'Coupe'

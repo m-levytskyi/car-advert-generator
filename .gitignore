@@ -32,7 +32,6 @@ Code/image_classifier/alexnet/wandb/
 .DS_Store
 .pyc
 Code/image_classifier/Resnet50/__pycache__
-Code/article_agent/.env
 
 #VisualTransformer
 Code/image_classifier/VisualTransformer/data/

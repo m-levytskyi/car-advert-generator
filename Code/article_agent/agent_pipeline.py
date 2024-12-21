@@ -5,9 +5,9 @@ from article_agent import ArticleAgent
 import json
 
 
-def filter_out_markdown(text: list[str]) -> list[str]:
+def clean_text(text: list[str]) -> list[str]:
     """
-    Filter out markdown characters from the text.
+    Filter out markdown characters from the text. Also if the string starts with 'Paragraph:', remove it.
 
     Args:
         text (list[str]): The text from which markdown characters need to be filtered out.
@@ -15,6 +15,7 @@ def filter_out_markdown(text: list[str]) -> list[str]:
     Returns:
         str: The text after filtering out the markdown characters.
     """
+    text = [t.replace('Paragraph:', '') for t in text]
     return [t.replace('**', '').replace('`', '').replace('"', '') for t in text]
 
 
@@ -39,30 +40,22 @@ class AgentPipeline:
         Returns:
             List[str]: The list of tasks created based on the brand.
         """
-        if car_type:
-            tasks = [
-                f"Write a introductory paragraph for an article about a {brand} {car_type}.",
-                f"Write a sensational paragraph for an article about a new {car_type} offered by {brand}.",
-                f"Write a sensational paragraph for an article about the history of {brand}.",
-                f"Write a sensational paragraph for an article about the innovations of the {car_type} of {brand}."
-            ]
-            return tasks
-        
         tasks = [
-            f"Write a introductory paragraph for an article about {brand}.",
-            f"Write a sensational paragraph for an article about the new models offered by {brand}.",
-            f"Write a sensational paragraph for an article about the history of {brand}.",
-            f"Write a sensational paragraph for an article about the innovations of the cars of {brand}."
+            f"Write a introductory paragraph for an article about a {brand} {car_type}.",
+            # f"Write a sensational paragraph for an article about a new {car_type} offered by {brand}.",
+            # f"Write a sensational paragraph for an article about the history of {brand}.",
+            # f"Write a sensational paragraph for an article about the innovations of the {car_type} of {brand}."
         ]
         return tasks
+        
     
 
     # make it return a json object
     def __call__(self):
         logging.info(f"Article Agent: Creating paragraphs, image descriptions and subtitles for the tasks: {self.tasks}")
-        paragraphs = filter_out_markdown(self.agent.create_paragraphs(self.tasks, self.brand, self.car_type))
-        image_descriptions = filter_out_markdown(self.agent.create_image_descriptions(paragraphs=paragraphs))
-        subtitles = filter_out_markdown(self.agent.create_image_subtitles(descriptions=image_descriptions))
+        paragraphs = clean_text(self.agent.create_paragraphs(self.tasks, self.brand, self.car_type))
+        image_descriptions = clean_text(self.agent.create_image_descriptions(paragraphs=paragraphs))
+        subtitles = clean_text(self.agent.create_image_subtitles(descriptions=image_descriptions))
 
         logging.info('Article Agent: Created finished creating paragraphs, image descriptions and subtitles.')
         return json.dumps({

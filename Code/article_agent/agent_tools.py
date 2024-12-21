@@ -34,7 +34,7 @@ def search_duckduckgo(searchstring: str) -> str:
     return "DuckDuckGo search failed after multiple attempts."
 
 @tool
-def fetch_wikipedia_context(searchstring: str) -> str:
+def search_wikipedia(searchstring: str) -> str:
     """
     Tool to retrieve information from Wikipedia.
 
@@ -54,4 +54,4 @@ def fetch_wikipedia_context(searchstring: str) -> str:
 
 if __name__ == "__main__":
     # print(search_duckduckgo.invoke({"brand": "BMW", "type": "SUV"}))
-    print(fetch_wikipedia_context.invoke({"brand": "BMW", "type": "SUV"}))
+    print(search_wikipedia.invoke({"brand": "BMW", "type": "SUV"}))
