@@ -60,5 +60,5 @@ def fetch_wikipedia_context(brand: str, type: str = None) -> str:
     
 
 if __name__ == "__main__":
-    print(search_duckduckgo.invoke({"brand": "BMW", "type": "SUV"}))
-    print(fetch_wikipedia_context.invoke({"topic": "BMW"}))
+    # print(search_duckduckgo.invoke({"brand": "BMW", "type": "SUV"}))
+    print(fetch_wikipedia_context.invoke({"brand": "BMW", "type": "SUV"}))
