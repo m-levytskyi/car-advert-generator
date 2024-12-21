@@ -42,9 +42,9 @@ class AgentPipeline:
         """
         tasks = [
             f"Write a introductory paragraph for an article about a {brand} {car_type}.",
-            # f"Write a sensational paragraph for an article about a new {car_type} offered by {brand}.",
-            # f"Write a sensational paragraph for an article about the history of {brand}.",
-            # f"Write a sensational paragraph for an article about the innovations of the {car_type} of {brand}."
+            f"Write a sensational paragraph for an article about a new {car_type} offered by {brand}.",
+            f"Write a sensational paragraph for an article about the history of {brand}.",
+            f"Write a sensational paragraph for an article about the innovations of the {car_type} of {brand}."
         ]
         return tasks
         

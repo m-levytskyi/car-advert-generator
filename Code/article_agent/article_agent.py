@@ -1,5 +1,5 @@
 import os
-import time
+import logging
 from dotenv import load_dotenv
 from typing import Optional, List
 from langchain_groq import ChatGroq
@@ -18,7 +18,7 @@ from langchain.agents.format_scratchpad import format_log_to_str
 from langchain.agents.output_parsers import (
     ReActJsonSingleInputOutputParser,
 )
-from langchain_community.llms import HuggingFaceEndpoint
+
 from langchain_community.chat_models.huggingface import ChatHuggingFace
 from langchain.tools.render import render_text_description
 
@@ -34,7 +34,9 @@ class ArticleAgent:
         """
         # Load environment variables
         load_dotenv()
-
+        logging.basicConfig(level=logging.INFO,
+                            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        
         # Get the API key for the Groq language model
         self.gq_token: Optional[str] = os.getenv("GROQ_API_KEY")
         self.langsmith_token: Optional[str] = os.getenv("LANGSMITH_API_KEY")
@@ -87,7 +89,7 @@ class ArticleAgent:
         )
 
         # instantiate AgentExecutor
-        self.agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True, max_iterations=4, return_intermediate_steps=True)
+        self.agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=False, handle_parsing_errors=True, max_iterations=4, return_intermediate_steps=True)
 
     def token_in_string(self, string: str) -> int:
         """
@@ -111,7 +113,6 @@ class ArticleAgent:
                 context = step[1]
                 # Respect the token limit of the model
                 if self.token_in_string(all_context + context) > 4096:
-                    print(">>>> Token limit reached.")
                     break
                 all_context += context + "\n"
 
@@ -124,7 +125,7 @@ class ArticleAgent:
             ]).format_prompt()
             return self.gr_llm.invoke(prompt.to_messages())
         except Exception as e:
-            print(f"Error in LLM with agent: {e}")
+            logging.error(f"Error in paragraph generation: {e}")
             return None
 
 
@@ -150,11 +151,8 @@ class ArticleAgent:
 
             return self.gr_llm.invoke(prompt)
         except Exception as e:
-            print(f"Error: {e}")
-            return ""
-
-
-
+            logging.error(f"Error in paragraph generation fallback: {e}")
+            return None
     
     def create_paragraphs(self, tasks: List[str], brand: str = None, car_type: str = None) -> List[str]:
         """
@@ -169,20 +167,13 @@ class ArticleAgent:
         paragraphs = []
         responses = ""
         for task in tasks:
-            print(f"\n\nTask: {task}")
             paragraph = self.get_information_with_agent(task=task, prior_responses=responses)
             if paragraph is None:
-                print("Model failed to generate a response. Fallback to using all tools.")
+                logging.info("Model failed to generate a response. Fallback to using all tools.")
                 paragraph = self.get_information_with_sources_fallback(brand, car_type, task, prior_responses=responses)
-            if not hasattr(paragraph, "content") or paragraph.content == "":
-                print("Model failed to generate a response. Fallback to using all tools.")
-                paragraph = self.get_information_with_sources_fallback(brand, car_type, task, prior_responses=responses)
-            
-            if hasattr(paragraph, "content"):
-                paragraphs.append(paragraph.content)
-            else:
+            if paragraph is not None:
                 paragraphs.append(paragraph)
-            responses += paragraph.content + "\n"
+                responses += paragraph.content + "\n"
         return paragraphs
     
     def get_information(self, context: str, instruction: str) -> str:
