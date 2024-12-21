@@ -10,7 +10,7 @@ wikipedia_retriever = WikipediaRetriever()
 ddg_search = DuckDuckGoSearchRun()
 
 @tool
-def search_duckduckgo(brand: str, type: str = None) -> str:
+def search_duckduckgo(searchstring: str) -> str:
     """
     Tool to search for information on DuckDuckGo based on brand and type.
 
@@ -21,10 +21,7 @@ def search_duckduckgo(brand: str, type: str = None) -> str:
     Returns:
         str: The search result, or an error message if the search fails.
     """
-    if brand and type:
-        query = f"What's the new {brand} {type} model?"
-    elif brand:
-        query = f"What's new with {brand}?"
+    query = f"What's the new with {searchstring}?"
     for attempt in range(2):  # Try twice: initial attempt + 1 retry
         try:
             # Add a time delay to avoid getting blocked by rate limiting
@@ -37,7 +34,7 @@ def search_duckduckgo(brand: str, type: str = None) -> str:
     return "DuckDuckGo search failed after multiple attempts."
 
 @tool
-def fetch_wikipedia_context(brand: str, type: str = None) -> str:
+def fetch_wikipedia_context(searchstring: str) -> str:
     """
     Tool to retrieve information from Wikipedia.
 
@@ -48,11 +45,7 @@ def fetch_wikipedia_context(brand: str, type: str = None) -> str:
         str: The retrieved Wikipedia content.
     """
     try:
-        if type:
-            topic = f"{brand} {type}"
-        else:
-            topic = brand
-        docs = wikipedia_retriever.invoke(topic)
+        docs = wikipedia_retriever.invoke(searchstring)
         return "\n\n".join(doc.page_content for doc in docs) if docs else "No relevant Wikipedia results."
     except Exception as e:
         print(f"Wikipedia retrieval failed: {e}")

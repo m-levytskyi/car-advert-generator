@@ -7,9 +7,14 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
-
+from langchain import hub
+from langchain.agents import AgentExecutor, create_react_agent
 
 from agent_tools import search_duckduckgo, fetch_wikipedia_context
+from langchain.agents import AgentExecutor
+from langchain_core.prompts import ChatPromptTemplate
+
+
 
 
 
@@ -23,11 +28,13 @@ class ArticleAgent:
 
         # Get the API key for the Groq language model
         self.gq_token: Optional[str] = os.getenv("GROQ_API_KEY")
+        self.langsmith_token: Optional[str] = os.getenv("LANGSMITH_API_KEY")
 
         # Initialize the Groq language model
         self.llm = ChatGroq(
             api_key=self.gq_token,
             model="llama3-8b-8192",
+            # model="llama-3.3-70b-specdec", # better model but slower and has a lower token limit
             temperature=0.5,
             max_tokens=None,
             timeout=None,
@@ -37,6 +44,51 @@ class ArticleAgent:
         self.tools = list_of_tools
 
         self.llm_with_tools = self.llm.bind_tools(self.tools)
+
+        self.prompt = hub.pull("hwchase17/react")
+        self.prompt.template = 'Answer the following questions as best you can. You have access to the following tools:\n\n{tools}\n\nUse the following format:\n\nQuestion: the input question you must answer\nThought: you should always think about what to do\nAction: the action to take, should be one of [{tool_names}]\nAction Input: the input to the action\nObservation: the result of the action\n... (this Thought/Action/Action Input/Observation can repeat 3 times)\nThought: I now know the final answer\nFinal Answer: the final answer to the original input question\n\nBegin!\n\nQuestion: {input}\nThought:{agent_scratchpad}'
+        self.agent = create_react_agent(llm=self.llm, prompt=self.prompt, tools=self.tools)
+
+        # instantiate AgentExecutor
+        self.agent_executor = AgentExecutor(agent=self.agent, tools=self.tools, verbose=True, handle_parsing_errors=True, max_iterations=4, return_intermediate_steps=True)
+
+    def token_in_string(self, string: str) -> int:
+        """
+        Count the number of tokens in a string.
+
+        Args:
+            string (str): The string for which the number of tokens need to be counted.
+
+        Returns:
+            int: The number of tokens in the string.
+        """
+        # count number of words in the string
+        return len(string.split()) * 0.75 # 1 token = 0.75 words (average)
+
+    def get_information_with_agent(self, task: str = "", prior_responses: str = "") -> AIMessage:
+        try:
+            response = self.agent_executor.invoke({"input": task})
+            intermediate_steps = response['intermediate_steps']
+            all_context = ""
+            for step in intermediate_steps:
+                context = step[1]
+                # Respect the token limit of the model
+                if self.token_in_string(all_context + context) > 4096:
+                    print(">>>> Token limit reached.")
+                    break
+                all_context += context + "\n"
+
+            # call basic self.llm, with all_context as context, systemmessage, and humanmessage (task)
+            prompt = ChatPromptTemplate([
+                SystemMessage("You are an article writer. You have to write an article given a specific task. Always answer in this format:\"Paragraph: ...\""),
+                HumanMessage(f"For context: {all_context}"),
+                HumanMessage(f"Prior Paragraphs: {prior_responses}"),
+                HumanMessage(task),
+            ]).format_prompt()
+            return self.llm.invoke(prompt.to_messages())
+        except Exception as e:
+            print(f"Error in LLM with agent: {e}")
+            return None
 
 
     def get_information_with_sources(self, task: str = "", prior_responses: str = "") -> AIMessage:
@@ -76,7 +128,7 @@ class ArticleAgent:
                 messages.append(tool_msg)
 
             # TODO: Add prior responses as context to the prompt
-            
+
             return self.llm_with_tools.invoke(messages)
         except Exception as e:
             print(f"Error in LLM with toolcalling: {e}")
@@ -122,10 +174,16 @@ class ArticleAgent:
         responses = ""
         for task in tasks:
             print(f"\n\nTask: {task}")
-            paragraph = self.get_information_with_sources(task=task, prior_responses=responses)
-            if paragraph is None or paragraph.content == "":
-                print("Model did not call any tools and failed to generate a response. Fallback to using all tools.")
+            paragraph = self.get_information_with_agent(task=task, prior_responses=responses)
+            if paragraph is None:
+                print("Model failed to generate a response. Fallback to using all tools.")
                 paragraph = self.get_information_with_sources_fallback(brand, car_type, task, prior_responses=responses)
+
+            # see if paragraph has content attribute
+            if not hasattr(paragraph, "content") or paragraph.content == "":
+                print("Model failed to generate a response. Fallback to using all tools.")
+                paragraph = self.get_information_with_sources_fallback(brand, car_type, task, prior_responses=responses)
+
             paragraphs.append(paragraph.content)
             responses += paragraph.content + "\n"
         return paragraphs
@@ -197,16 +255,18 @@ class ArticleAgent:
         return image_descriptions
 
 if __name__ == "__main__":
-    tools = [fetch_wikipedia_context, search_duckduckgo]
+    tools = [search_duckduckgo, fetch_wikipedia_context]
     agent = ArticleAgent(list_of_tools=tools)
     brand = 'BMW'
-    car_type = 'SUV'
+    car_type = 'Coupe'
     tasks = [
-        f"Write a introductory paragraph for an article about a {brand} {car_type}.",
+        f"Write a introductory paragraph (about 200 words) for an article about a {brand} {car_type}.",
         f"Write a paragraph for an article about a new {car_type} offered by {brand}.",
         f"Write a paragraph for an article about the history of {brand}.",
         f"Write a paragraph for an article about the innovations of the {car_type} of {brand}."
     ]
-    paragraphs = agent.create_paragraphs(tasks, brand, car_type)
-    for i, paragraph in enumerate(paragraphs):
-        print(f"\n\nTask: {tasks[i]}\nParagraph: {paragraph}")
+    using_agent = agent.get_information_with_agent(tasks[0])
+    print(using_agent)
+    # paragraphs = agent.create_paragraphs(tasks, brand, car_type)
+    # for i, paragraph in enumerate(paragraphs):
+    #     print(f"\n\nTask: {tasks[i]}\nParagraph: {paragraph}")
