@@ -172,7 +172,7 @@ class ArticleAgent:
                 logging.info("Model failed to generate a response. Fallback to using all tools.")
                 paragraph = self.get_information_with_sources_fallback(brand, car_type, task, prior_responses=responses)
             if paragraph is not None:
-                paragraphs.append(paragraph)
+                paragraphs.append(paragraph.content)
                 responses += paragraph.content + "\n"
         return paragraphs
     
