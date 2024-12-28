@@ -4,31 +4,31 @@ from dotenv import load_dotenv
 from typing import Optional, List
 from langchain_groq import ChatGroq
 from langchain_core.output_parsers import StrOutputParser
-from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+from langchain_huggingface import HuggingFaceEndpoint
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain import hub
-from langchain.agents import AgentExecutor, create_react_agent
+from langchain.agents import AgentExecutor
 
 from langchain import hub
-from langchain.agents import AgentExecutor, load_tools
+from langchain.agents import AgentExecutor
 from langchain.agents.format_scratchpad import format_log_to_str
 from langchain.agents.output_parsers import (
     ReActJsonSingleInputOutputParser,
 )
 
-from langchain_community.chat_models.huggingface import ChatHuggingFace
 from langchain.tools.render import render_text_description
 
 
-from agent_tools import search_duckduckgo, search_wikipedia
+from agent_tools import search_google, search_wikipedia
 from langchain.agents import AgentExecutor
+from tqdm import tqdm
 
 
 class ArticleAgent:
-    def __init__(self, list_of_tools: list = [search_wikipedia, search_duckduckgo]):
+    def __init__(self, list_of_tools: list = [search_wikipedia, search_google]):
         """
         Initialize the ArticleAgent with the large language model, Wikipedia retriever, and DuckDuckGo search.
         """
@@ -110,11 +110,15 @@ class ArticleAgent:
             intermediate_steps = response['intermediate_steps']
             all_context = ""
             for step in intermediate_steps:
-                context = step[1]
-                # Respect the token limit of the model
-                if self.token_in_string(all_context + context) > 4096:
-                    break
-                all_context += context + "\n"
+                try:
+                    context = step[1]['content']
+                    # Respect the token limit of the model
+                    if self.token_in_string(all_context + context) > 4096:
+                        break
+                    all_context += context + "\n"
+                except Exception as e:
+                    # Skip the step if it doesn't have content
+                    continue
 
             # call basic self.llm, with all_context as context, systemmessage, and humanmessage (task)
             prompt = ChatPromptTemplate([
@@ -146,7 +150,7 @@ class ArticleAgent:
             tool_res_1 = self.tools[1].invoke({"searchstring": brand + " " + type})
             
 
-            prompt = f"{instruction} \nPrior Responses: {prior_responses} \nContext: \n{tool_res_0}\n{tool_res_1} \nTask: {task}"
+            prompt = f"{instruction} \nPrior Responses: {prior_responses} \nContext: \n{tool_res_0['content']}\n{tool_res_1['content']} \nTask: {task}"
             
 
             return self.gr_llm.invoke(prompt)
@@ -166,7 +170,7 @@ class ArticleAgent:
         """
         paragraphs = []
         responses = ""
-        for task in tasks:
+        for task in tqdm(tasks, desc="Creating paragraphs"):
             paragraph = self.get_information_with_agent(task=task, prior_responses=responses)
             if paragraph is None:
                 logging.info("Model failed to generate a response. Fallback to using all tools.")
@@ -218,7 +222,7 @@ class ArticleAgent:
         """
         image_descriptions = []
         views = ["front", "back", "side", "interior"]
-        for i, paragraph in enumerate(paragraphs):
+        for i, paragraph in enumerate(tqdm(paragraphs, desc="Creating image descriptions")):
             view = views[i % len(views)]
             # for a diffusion model, create the description of the image based on the paragraph
             image_description = self.get_information(context=paragraph, instruction=f"Create a description of an image based on the context provided. Only describe the image. The image should be a {str(view)} view of the car.")
@@ -236,25 +240,29 @@ class ArticleAgent:
             List[str]: The list of image descriptions created for the given paragraphs.
         """
         image_descriptions = []
-        for description in descriptions:
+        for description in tqdm(descriptions, desc="Creating image subtitles"):
             # for a diffusion model, create the description of the image based on the paragraph
             image_description = self.get_information(context=description, instruction="Create a subtitle for an image based on the image description provided in the context. Only give me the subtitle.")
             image_descriptions.append(image_description)
         return image_descriptions
 
 if __name__ == "__main__":
-    tools = [search_duckduckgo, search_wikipedia]
+    # tools = [search_wikipedia, search_duckduckgo]
+    tools = [search_google, search_wikipedia]
     agent = ArticleAgent(list_of_tools=tools)
     brand = 'BMW'
     car_type = 'Coupe'
     tasks = [
-        f"Write a introductory paragraph (about 200 words) for an article about a {brand} {car_type}.",
-        f"Write a paragraph for an article about a new {car_type} offered by {brand}.",
-        f"Write a paragraph for an article about the history of {brand}.",
-        f"Write a paragraph for an article about the innovations of the {car_type} of {brand}."
+        # f"Write a introductory paragraph for an article about a {brand} {car_type}.",
+        # f"Write a paragraph for an article about a new {car_type} offered by {brand}.",
+        # f"Write a paragraph for an article about the history of {brand}.",
+        f"Write a paragraph about the recent innovations of the {car_type} of {brand}."
     ]
     using_agent = agent.get_information_with_agent(tasks[0])
     print(using_agent)
+    # using_fallback = agent.get_information_with_sources_fallback(brand, car_type, tasks[0])
+    # print(using_fallback)
+
     # paragraphs = agent.create_paragraphs(tasks, brand, car_type)
     # for i, paragraph in enumerate(paragraphs):
     #     print(f"\n\nTask: {tasks[i]}\nParagraph: {paragraph}")

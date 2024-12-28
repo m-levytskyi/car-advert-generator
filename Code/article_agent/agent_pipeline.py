@@ -69,7 +69,7 @@ class AgentPipeline:
 
 if __name__ == "__main__":
     brand = 'Toyota'
-    car_type = 'Coupe'
+    car_type = 'SUV'
     agent_pipeline = AgentPipeline(brand=brand, car_type=car_type)
     response = agent_pipeline()
     # save json object to a file
