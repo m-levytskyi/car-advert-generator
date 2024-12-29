@@ -64,7 +64,27 @@ You can reference literature from bibtex files (references.bib). Example: Use @k
 
 ### Article Agent 
 
-[Also describe the used tools (e.g. wikipedia) and the reason for that choice]
+<!-- [Also describe the used tools (e.g. wikipedia) and the reason for that choice] -->
+**Role**: Generate paragraphs, image titles and image descriptions from the predicted $brand$ and $bodystyle$
+
+
+**Data Flow**: Brand + Bodystyle → Agent logic → JSON data with paragraphs, image titles, image descriptions
+
+![Flowchart of the Article Agent](images/flowchart_article_agent.svg)
+
+**LLMs**
+
+The article agent is made up of two different LLMs, and two tools. One LLM is used for requesting information from the tools. This LLM is provided by the [API of HuggingFace](https://python.langchain.com/docs/integrations/llms/huggingface_endpoint/). The other LLM is used for the generation of text and offered by [Groq](https://python.langchain.com/docs/integrations/chat/groq/). In this project, we use the `llama3-8b-8192` model. This setup is used, because the more powerful Llama3 model by Groq used to generate the text has lower rate limits. The tool calling requires several API calls, with potentially many input tokens; this can exceed the rate limit if a number of articles are created in quick succession. Therefore, another LLM with higher rate limits is used for the tool calling, specifically the `zephyr-7b-alpha` model [by HuggingFace](https://huggingface.co/HuggingFaceH4/zephyr-7b-alpha). This model does not generate text in the quality of Llama3, but is more than capable for the tool calling. The tool calls by this model are then transferred to the text generating LLM for the final paragraphs and image titles. This way, rate limits are not an issue while not compromising on text quality.
+
+**Tools**
+
+The Wikipedia tool allows for general information retrieval.  For some paragraphs, the request to the LLM might look like this: "Write a paragraph for an article about a new $car_type$ offered by $brand$." Here, general information like a Wikipedia article about the brand are useful. The [Wikipedia API](https://python.langchain.com/docs/integrations/retrievers/wikipedia/) can be called with any searchstring and return a relevant article.
+
+For more recent and specific information, the [DuckDuckGo API](https://python.langchain.com/docs/integrations/tools/ddg/) is better suited. The finished article should be tailored to a specific car, as the only information is brand and body type, DDG can help to create more variance in the article. The LLM can call this tool with a search string that is then forwarded to the DuckDuckGo API.
+
+**Context**
+
+If paragraphs were already created, they are included in the request. This way, if the model writes about a specific model in a paragraph, in the next paragraph no other car will be described. For each generated paragraph, the LLM then creates image descriptions and titles. Internally, the requests are refined so that images are created from the front, back and interior. 
 
 ### Article Assembler 
 
