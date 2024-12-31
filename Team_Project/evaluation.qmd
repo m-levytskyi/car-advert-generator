@@ -8,6 +8,43 @@ This chapter contains important evaluation results for the modules of the system
 
 [Describe how you get to ds2 based on the results on ds1]
 
+## Captum
+Captum is a tool to visualize what part of the input was most important for the decision-making of a network. In our case, we have a CNN (AlexNet) and visualize what part of the input image influenced the prediction of the $brand$ or $body style$.
+First, some interesting activations of the model trained on DS1 will be shown. Then, with the AlexNet trained on DS2 inputs are again evaluated.
+
+### AlexNet trained on DS1
+One issue for the prediction of brand and body style is that activations occur not on the car but of the car's surroundings. The model should only predict based on the car itself. If activations are not on the car, it means the model did not even detect the car properly.
+![Miss placed activations 1](images/captum/Pasted%20image%2020241231105922.png)
+![Miss placed activations 2](images/captum/Pasted%20image%2020241231110101.png)
+A similar issue is that for brand and body style, activations can appear random. This could suggest that the model does not know where to look and maybe needs more training data.
+![Random activations 1](images/captum/Pasted%20image%2020241231110005.png)
+![Random activations 2](images/captum/Pasted%20image%2020241231110122.png)
+Another issue, which however only occurs for body style, is that the activations are very localized. In other cases, the visualizations are so faint, that they do not even appear in the plots.
+![Localized activations](images/captum/Pasted%20image%2020241231110510.png)
+![Localized activations](images/captum/Pasted%20image%2020241231110452.png)
+For brands that are highly represented in the dataset, and have a consistent design language, the activations are better. But even with these cars, the activations only make sense when the car is pictured from the front.
+![Sensible activations](images/captum/Pasted%20image%2020241231111947.png)
+![Sensible activations](images/captum/2.png)
+
+### AlexNet trained on DS2
+With the introduction of DS2 we tried to address the issues of DS1. DS2 has more images, especially of the less represented car brands, and Yolo was used to filter images that did not have an obvious car on them or which had multiple cars depicted.
+
+The images of body style activations had the same problems as with DS1 there often were no activation or only localized and activations on the scenery instead of on the car.
+
+The predictions of brands did show more progress. Now even brands that were previously more uncommon are predicted correct, and the activations look more sensible. Here are some examples:
+![Sensible activations](images/captum/Pasted%20image%2020241231122946.png)
+![Sensible activations](images/captum/Pasted%20image%2020241231123010.png)
+![Sensible activations](images/captum/Pasted%20image%2020241231123040.png)
+![Sensible activations](images/captum/Pasted%20image%2020241231123141.png)
+
+However, the problems did not go away, they just became rarer. Especially if the image of the car is not from the front, the activations very seldom look sensible.
+![bad case activations](images/captum/Pasted%20image%2020241231122506.png)
+![bad case activations](images/captum/Pasted%20image%2020241231123444.png)
+![bad case activations](images/captum/Pasted%20image%2020241231123541.png)
+
+### Conclusion
+It is difficult to draw a definite conclusion from the Captum plots. However, it seems like predicting brands from the front is viable. While predicting body style in general is hard for the AlexNet and can not be interpreted directly. The DS2 did show better results of the activations, even though the previously mentioned problems still persist.
+
 ## Article Agent 
 
 [Show some best- and worst-case examples and their timings]
