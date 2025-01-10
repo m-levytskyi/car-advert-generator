@@ -21,6 +21,10 @@ from langchain.agents.output_parsers import (
 
 from langchain.tools.render import render_text_description
 
+# Add the parent directory of the current file to the path
+# needed for the import of the agent_tools module
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from agent_tools import search_google, search_wikipedia
 from langchain.agents import AgentExecutor
