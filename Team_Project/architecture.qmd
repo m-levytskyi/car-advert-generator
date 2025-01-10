@@ -33,10 +33,27 @@ This chapter describes the architecture of the system.
 
 ### Object Detector 
 
-[Also describe the used architectures (see team-project presentation) in short (most important advances)]
+The object detection is divided into 2 steps:
 
+1. Preprocessing
+2. Detection on the processed image
+
+Preprocessing means extracting only the car from the image and resizing it to 256x256 pixels. This is done by trusting YOLO11-X. \
+Its' pretrained weights trained on the ImageNet dataset result in 79.5% accuracy and a mAPval50-95 on the COCO dataset of 54.7 [@yolo11_ultralytics]. \
+We take all detections of class 2 - "car" and cut those out, in which the model is at least 80% confident. Then the biggest bounding box is extracted to ignore potential cars in the background. \
+The extracted image now definitely contains a car and only the car and is fed into the object detector itself. \
+AlexNet was trained by us to either recognize 21 popular car brands or the 5 body styles "family_car", "hatchback", "sedan", sports_car and "suv". It does so with a 86% accuracy on "brand" and 84% on "body_style", what is quite impressive. \
+The preprocessing is essential at this point, as the accuracy decreases to 28% / 41% when its let out and non-extracted images are directly fed into AlexNet. The network relies heavily on the preprocessing. \
+
+A detailed description of the training process and the object detector can be found in the [evaluation](evaluation.qmd#image-classifier).
 
 #### AlexNet
+
+AlexNet won the 2012 ImageNet Large Scale Visual Recognition Challenge (ILSVRC). It has started peoples interest in Deep Learning and can be seen as the beginning of the current AI boom. \
+It achieves good accuracy with only 5 convolutional and 3 fully connected layers. The ReLu activation function, Dropout layers and data augmentation helped the model to perform this good. \
+Still, for 2012 the network was relatively deep and could only be realized by separating the data stream over two GTX 580 GPUs with each 3GB VRAM. Being able to combine the power of 2 GPUs was also a key advancement. \
+It predicts the 1000 ImageNet classes with an accuracy of 60.3%. \
+[@krizhevsky2012imagenet]
 
 #### ResNet
 

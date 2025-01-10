@@ -4,9 +4,62 @@ This chapter contains important evaluation results for the modules of the system
 
 ## Image Classifier
 
-[Show evaluation results as described in the team-project slides]
+The first step was recreating AlexNet in PyTorch. The input size was adapted to 224x224 instead of 227x227 by adding padding of 2 to the first convolutional layer. \
+It was also neccessary to change the optimizer to Adam, because the suggested Stochastic Gradient Descent didn't work. The network just didn't seem to learn at all. \
+Also the proposed intitial weights and biases had to be excluded. They stopped the training process when training with a simple test dataset in the beginning and slowed down the final training on DS2. I assume, that these weights are specifically fitted for training on the ImageNet dataset. \
 
-[Describe how you get to ds2 based on the results on ds1]
+The used ResNet-50 version was imported from the torchvision library and pretrained with "IMAGENET1K_V1" weights (trained on Imagenet). It was then used with finetuning, where all layers' weights get adapted and with transfer learning, where only the last layer, the classifiers' weights could update. \
+The VisionTransformer was loaded from the "transformers" package and equipped with googles' "vit-base-patch16-224-in21k" weights. The used model is the VisionTransformer base-model (the smallest one) with patches of size 16x16. It was trained on the extended ImageNet with 21000 classes. We decided to only use transfer learning, meaning only the classifer will be updated, as the (transfer learning) training process with about 80000 images already took 1 day and 6 hours at the time and we didn't know, how big DS2 would become. Also the Vision Transformer results were the least promising, as described in the next paragraph. \
+
+The first results showed a max. accuracy of ~46% using ResNet transfer learning, ~44% using ResNet finetuning, ~32% using VisionTransformer transfer learning and ~61% using AlexNet. \
+Please note, that neither the train process or the models were optimized at this point and solely used for evaluation and comparison between the three. \
+![First training runs of the 3 networks](images/training/Ep1.png)
+These obvious results determined AlexNet as the choosen network to be used throughout the project. Not only the accuracy but also the fast convergence (of training) and overall training time made it the winner. AlexNet training and ResNet transfer learning took nearly 3 hours, ResNet finetuning about 6 while the VisionTransformer transfer learning took 1.25 days. 
+
+The next steps were improving the accuracy and training process. While "brand" and "body_style" were trained and improved simultaneously, the advancements will be shown on the training of the more complex label "brand" in the following. \
+
+DS1 was a dataset that contains a lot of pictures of cars interior, which are contraproductive for training. I tried to sort these out by only keeping the images, where YOLO-V11x recognized a car. This did already sort out most of the interior pictures. YOLO was later used more efficiently. \
+
+The dataloader was extended to support equally distributed training. This means the samples of each class were reduced to the amount of the class with the least samples. 
+We decided to do this because the brands "Audi", "Mercedes" and "BMW" were overrepresented and made more than a third of the DS1 dataset. This can result in bad recognition of other classes or a bad generalization. The F1 score was introduced alongside this measure to be saved to weights and biases. Although not comparable to previous results, the F1 score was always in close range to accuracy from now on. The option to exclude specific labels from training manually increases the amount of training images if used in combination with the equal distribution option. \
+![First run of equally distributed training + excluded Ferrari](images/training/F1_accuracy_equaldist.png)
+
+The dataset is now extended by over 20000 images of newly labeled images, what is explained in [data set](domain.qmd#data-set). \
+At this point preprocessing was introduced. The idea is to extract only the car from the picture to hinder the NN to inspect the background.
+I used YOLO-V11x again to detect cars on the whole DS1 dataset (DS1 + newly autolabeled data). The biggest bounding box recognized as a "car" gets extracted.
+Also several datasets variants were created. One where a car / bounding box only gets accepted if YOLO-V11x is > 80% confident in it and one where it doesn't matter.
+This seemed to sort out interior- and generally bad images, as it showed a direct increase in accuracy. \
+Of course, the preprocessing itself (extracting the car) improved training by a lot compared to previous results. \
+
+![Comparison of extractions with >0.8 confidence (cyan) vs. >0 confidence (orange)](images/training/0.8conf_vs_0conf.png)
+*Comparison of extractions with >0.8 confidence (cyan) vs. >0 confidence (orange)*
+
+Manually adjusting the dataset by setting a maximum of 5452 images for every class thus making the dataset a bit better distributed increased the accuracy again by 5% to ~77%.
+![New distribution](images/training/DS2_brand_0.8conf_cut.csv.png)
+
+The dataloader now supports data augmentation. Each input image will now be used as 10 different images. From each 256 pixel input image 224 pixel sectors will be cut out. The sectors are: middle, upper-left, upper-right, lower-left and lower-right.
+The images will be additionaly mirrored horizontaly, what results in 10 times the amount of data as without augmentation. \
+Immediately, the accuracy rose from 77 to 85%. \
+
+![Accuracy without vs with data augmentation](images/training/batch_size.png)
+*Accuracy without vs with data augmentation*
+
+All experiments and the comprehensive training were only possible because of several performance improvements like the option to load the whole dataset into the ram or the use of OpenCV for data augmentation which is 2 times faster than PIL. \
+The final training with 30 epochs and nearly 1 million (augmented) images took only 6 hours. \
+And no, i didn't build a new server with 128Gb of memory, 16Gb Vram and a M.2-Raid that can read over 13.000 MB/s only to train AlexNet :D
+
+### Additional Hyperparameter adjustments: \
+
+1. Batch Size
+    - bigger batch size allows better generalization
+    ![256 vs 512 batch size](images/training/batch_size.png)
+    *256 vs 512 batch size* \
+\ 
+2. Learning Rate
+    -  every other learning rate than 0.0001 made training either slower or stopped it
+    ![256 vs 512 batch size](images/training/lr.png)
+    *0.01 (orange) vs. 0.001 (cyan) vs. 0.0001 (light orange) vs 0.00001 (purple)* \
+    \
 
 ## Captum
 Captum is a tool to visualize what part of the input was most important for the decision-making of a network. In our case, we have a CNN (AlexNet) and visualize what part of the input image influenced the prediction of the $brand$ or $body style$.
