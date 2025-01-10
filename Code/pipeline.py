@@ -21,6 +21,7 @@ PATHS = {
     'json_output': "Code/article_agent/json/output.json",
     'images': "Code/article_assembler/tmp/imgs",
     'article': "Code/article.pdf",
+    #TODO : new weights
     'weights_brand': "Code/image_classifier/alexnet/alexnet_epoch89_bestTrainLoss_bestValAccuracy.pth",
     'weights_body': "Code/image_classifier/alexnet/alexnet_body-style_epoch80_loss0.04466895014047623_weights.pth"
 }
@@ -29,6 +30,9 @@ MODEL_NAME = "alexnet"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 def load_classes():
+
+    #TODO : classes in discord
+
     """Load brand and body type classes from dataset"""
     df = pd.read_csv(PATHS['dataset'])
     brand_classes = sorted(df['brand'].unique())
@@ -37,6 +41,9 @@ def load_classes():
     return brand_classes, body_classes
 
 def preprocess_images(input_path, output_path):
+
+    # TODO: confidence
+
     """Preprocess images using YOLO detection"""
     print("Preprocessing images...")
     model = YOLO("yolo11x.pt")
@@ -109,6 +116,12 @@ def print_results(predictions, brand_classes, body_classes):
 
 def main():
     print("**** Loading. Please wait ****")
+
+
+    # 0. 
+    # TODO : webcam/no webcam switch
+    # clean directory if webcam
+    # separate directory if no webcam
     
     # 1. Capture Images
     print("\nStep 1: Capturing images...")

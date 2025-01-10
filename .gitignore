@@ -5,6 +5,7 @@
 /wandb
 __pycache__
 wandb
+/adl_env
 
 /Code/dataset/data/DS1_Car_Models_3778_sorted_256_adjusted.zip
 /Code/dataset/data/DS1_Car_Models_3778_sorted_256_adjusted

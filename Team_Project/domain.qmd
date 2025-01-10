@@ -9,7 +9,7 @@ The generated article follows a consistent structure designed for automotive adv
 2. **Introduction**: Opening section with initial vehicle overview
 3. **New Model Overview**: Design aesthetics and key model highlights
 4. **Brand Heritage**: Company legacy and historical achievements
-5. **Innovative Featurest**: Advanced technology and unique selling points
+5. **Innovative Features**: Advanced technology and unique selling points
 
 The layout alternates between text content and supporting images, with figures placed left and right for visual balance. Each image includes a descriptive caption.
 
