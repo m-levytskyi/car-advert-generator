@@ -1,0 +1,10 @@
+diffusers==0.32.1
+duckduckgo_search==7.2.1
+langchain-community==0.3.14
+langchain-groq==0.2.3
+langchain-huggingface==0.1.2
+pip==24.3.1
+setuptools==65.5.0
+tinycss2==1.4.0
+ultralytics==8.3.59
+wikipedia==1.4.0
