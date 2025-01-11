@@ -56,6 +56,8 @@ It predicts the 1000 ImageNet classes with an accuracy of 60.3%. \
 [@krizhevsky2012imagenet]
 
 #### ResNet
+Residual networks make it possible to train deeper neural networks. Vanishing gradients are one of the key issues with deep neural networks. This problem could be mitigated by using skip connections in the layers enabling a better inforamtion flow through the network. This architecture was a significant improvement over previous generations. \
+The original Resnet achieved an $3.57%$ error rate on ImageNet [@he2015deepresiduallearningimage]. We tried a Resnet50 v1.2 which is a modified version of the original Resnet optimized for PyTorch [@nvidia_resnet50_pytorch].
 
 #### Visual Transformer
 **Architecture**: Vision Transformer (ViT)
