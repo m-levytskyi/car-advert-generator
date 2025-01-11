@@ -6,6 +6,7 @@
 __pycache__
 wandb
 /adl_env
+/adl_env11
 
 /Code/dataset/data/DS1_Car_Models_3778_sorted_256_adjusted.zip
 /Code/dataset/data/DS1_Car_Models_3778_sorted_256_adjusted
@@ -58,3 +59,8 @@ Code/webcam/webcam_images
 Code/captum/captum_plots
 Code/captum/captum_plots_brand
 Code/captum/captum_plots_body
+
+# Pipeline
+Code/article.pdf
+tmp/filled_article.html
+Code/article_agent/json/output.json
