@@ -4,31 +4,51 @@ This chapter contains a description of the steps necessary to install and use th
 
 ## Prerequisites
 
--   Python 3.8+
+-   Python 3.11 - 3.12
 -   CUDA-capable GPU (recommended)
 -   Webcam (recommended)
 
 ## Installation
 
-1.  Clone the repository:
+1.  **Clone the repository:**
 
 ``` bash
 git clone https://gitlab.lrz.de/simon-hampp/adl-gruppe-1.git
 cd adl-gruppe-1
 ```
 
-2.  Create a virtual environment:
+2.  **Create a virtual environment:**
 
 ``` bash
 python -m venv venv
 source venv/bin/activate
 ```
 
-3.  Install dependencies:
+3.  **Install dependencies:**
+
+-   If using a CUDA-Compatible GPU (optional, but running a Stable Diffusion on CPU may take up to 1h):
+
+``` bash
+pip install -r requirements_cuda.txt
+```
+
+-   General:
 
 ``` bash
 pip install -r requirements.txt
 ```
+
+4.  **Make sure LaTeX, Pandoc and wkhtmltopdf are installed and added to the PATH.**
+
+It should happen automatically if you are using a Unix-based system.
+
+Otherwise you can download them from the following links:
+
+**LaTeX**: https://miktex.org/download
+
+**Pandoc**: https://pandoc.org/installing.html
+
+**wkhtmltopdf**: https://wkhtmltopdf.org/downloads.html
 
 ## Usage
 
