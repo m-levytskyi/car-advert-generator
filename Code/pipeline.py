@@ -8,6 +8,7 @@ import cv2
 from pathlib import Path
 import shutil
 from ultralytics import YOLO
+import argparse
 
 from webcam.webcam_capture import WebcamCapture
 from image_classifier.classify import CarClassifier
@@ -17,6 +18,7 @@ from article_assembler.assembler_pipeline import AssemblerPipeline
 # Configuration
 PATHS = {
     'webcam': "Code/webcam/webcam_images",
+    'demo_images': "Code/webcam/demo_images",
     'dataset': "Code/dataset/data/reduced_dataset_adjusted.csv",
     'json_output': "Code/article_agent/json/output.json",
     'images': "Code/article_assembler/tmp/imgs",
@@ -128,24 +130,41 @@ def print_results(predictions, brand_classes, body_classes):
 
 def main():
     print("**** Loading. Please wait ****")
-
-
-    # 0. 
-    # TODO : webcam/no webcam switch
-    # clean directory if webcam
-    # separate directory if no webcam
     
-    # 1. Capture Images
-    print("\nStep 1: Capturing images...")
-    clean_directory(PATHS['webcam'])
-    processed_path = os.path.join(PATHS['webcam'], "processed")
-    os.makedirs(processed_path, exist_ok=True)
+    parser = argparse.ArgumentParser(description="Car Classification Pipeline")
+    parser.add_argument('--mode', choices=['camera', 'images'], default='camera', help="Mode to run the pipeline: 'camera' or 'images'")
+    parser.add_argument('--images_path', type=str, default=PATHS['demo_images'], help="Path to the images to be used instead of webcam capture (required if mode is 'images')")
+    args = parser.parse_args()
+
+    # 1. Capture Images (or use a Demo Images Folder)
+    if args.mode == 'camera':
+        images_path = PATHS['webcam']
+
+        print("\nStep 1: Capturing images...")
+        clean_directory(PATHS['webcam'])
+        processed_path = os.path.join(PATHS['webcam'], "processed")
+        os.makedirs(processed_path, exist_ok=True)
+        
+        webcam = WebcamCapture(PATHS['webcam'])
+        webcam.capture_images()   
+
+    elif args.mode == 'images':
+        if not args.images_path:
+            parser.error("--images_path is required when mode is 'images'")
+        images_path = args.images_path
+
+        print(f"\nStep 1: Using images from {images_path}...")
+        processed_path = os.path.join(images_path, "processed")
+        os.makedirs(processed_path, exist_ok=True)
+        clean_directory(processed_path)
     
-    webcam = WebcamCapture(PATHS['webcam'])
-    webcam.capture_images()
+    else:
+        print("Error: Invalid mode. Please use 'camera' or 'images'")
+        return
+
     
     # 2. Preprocess Images
-    processed_count = preprocess_images(PATHS['webcam'], processed_path)
+    processed_count = preprocess_images(images_path, processed_path)
     if processed_count == 0:
         print("Error: No cars detected in images. Please try again.")
         return
