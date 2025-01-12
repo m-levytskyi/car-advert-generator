@@ -1,51 +1,90 @@
 # Manual
 
-This chapter contains a description of the steps necessary to install and use the system. 
+This chapter contains a description of the steps necessary to install and use the system.
 
 ## Prerequisites
 
-- Python 3.8+
-- CUDA-capable GPU (recommended)
-- Webcam
+-   Python 3.8+
+-   CUDA-capable GPU (recommended)
+-   Webcam (recommended)
 
-## Installation 
+## Installation
 
-[Describe the steps necessary to install the system, starting with cloning the git repository.]
+1.  Clone the repository:
 
-1. Clone the repository:
-```bash
+``` bash
 git clone https://gitlab.lrz.de/simon-hampp/adl-gruppe-1.git
 cd adl-gruppe-1
 ```
 
-2. Install dependencies:
-```bash
+2.  Create a virtual environment:
+
+``` bash
+python -m venv venv
+source venv/bin/activate
+```
+
+3.  Install dependencies:
+
+``` bash
 pip install -r requirements.txt
 ```
 
-## Usage 
+## Usage
 
-1. Navigate to project root:
-```bash
+1.  **Navigate to project root:**
+
+``` bash
 cd path/to/adl-gruppe-1
 ```
 
-2. Run the pipeline:
-```bash
+2.  **Run the pipeline:**
+
+``` bash
+python Code/pipeline.py [--mode <camera|images>] [--images_path /path/to/images]
+```
+
+Arguments:
+
+-   `--mode:` Specifies the mode to run the pipeline. It can be either `camera` or `images`.
+
+    -   `camera`: Uses the webcam to capture images. This is the default mode and can be omitted if you want to use the webcam.
+
+    -   `images`: Uses pre-existing images from a specified directory.
+
+-   `--images_path`: Specifies the path to the directory containing images to be used instead of capturing new ones with the webcam. This argument is optional and defaults to **Code/webcam/demo_images**, which contains images of a BMW X5. Use this argument if you want to specify a different directory.
+
+Examples**:**
+
+-   To run the pipeline using the webcam (default mode):
+
+``` bash
 python Code/pipeline.py
 ```
 
-3. Follow the interactive prompts:
+-   To run the pipeline using images from the default demo directory:
 
-- Webcam window will open
-- Press SPACE to capture car images
-- Press ENTER when finished capturing
-- Press ESC to abort
+``` bash
+python Code/pipeline.py --mode images
+```
 
-4. Wait for processing.
+-   To run the pipeline using images from a specific directory:
 
-5. Output locations:
+``` bash
+python Code/pipeline.py --mode images --images_path /path/to/images
+```
 
-- **Final Article**: Code/article.pdf
-- Captured images: Code/webcam/webcam_images/
-- Processed images: Code/webcam/processed_images/
+3.  **Follow the interactive prompts (if in `camera` mode):**
+
+-   Webcam window will open
+-   Press SPACE to capture car images
+-   Press ENTER when finished capturing
+-   Press ESC to abort
+
+**Wait for processing.**
+
+## Output locations:
+
+-   **Final Article**: Code/article.pdf
+-   Captured images: Code/webcam/webcam_images/
+-   Processed images: Code/webcam/processed_images/

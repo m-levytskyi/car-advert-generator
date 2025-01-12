@@ -3,7 +3,7 @@ project:
 
 book:
   title: "Team Project (ADL)"
-  author: "[first and last name of all authors]"
+  author: "Simon Hampp, Mykhailo Levytskyi, Marvin Wolf, Johannes Decker"
   date: "9/24/2024"
   chapters:
     - index.qmd

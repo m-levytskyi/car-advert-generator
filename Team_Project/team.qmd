@@ -6,7 +6,7 @@
 
 [Describe all work packages]
 
-Tahble @tbl-wps contains all work packages defined for this project.
+Table @tbl-wps contains all work packages defined for this project.
 
 +-------------+--------------------------------+-----------------+
 | Package No. | Description                    | Responsible     |
