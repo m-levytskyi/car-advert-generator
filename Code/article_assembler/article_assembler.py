@@ -7,6 +7,8 @@ from diffusers import StableDiffusionPipeline
 import torch
 import compel
 
+from weasyprint import HTML
+
 
 class ArticleAssembler:
     def __init__(self, template_file, output_dir="output", img_dir="imgs", tmp_dir="tmp"):
@@ -98,22 +100,22 @@ class ArticleAssembler:
             print(f"Error occurred while installing requirements: {e}")
             sys.exit(1)
 
-    @staticmethod
-    def get_wkhtmltopdf_path():
-        """
-        Returns the appropriate wkhtmltopdf path based on the platform.
-        """
-        if sys.platform == "win32":
-            possible_paths = [
-                r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe",
-                r"C:\Program Files (x86)\wkhtmltopdf\bin\wkhtmltopdf.exe",
-                os.environ.get("WKHTMLTOPDF_PATH", "wkhtmltopdf")
-            ]
-            for path in possible_paths:
-                if os.path.isfile(path):
-                    return path
-            return "wkhtmltopdf"
-        return "wkhtmltopdf"
+    # @staticmethod
+    # def get_wkhtmltopdf_path():
+    #     """
+    #     Returns the appropriate wkhtmltopdf path based on the platform.
+    #     """
+    #     if sys.platform == "win32":
+    #         possible_paths = [
+    #             r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe",
+    #             r"C:\Program Files (x86)\wkhtmltopdf\bin\wkhtmltopdf.exe",
+    #             os.environ.get("WKHTMLTOPDF_PATH", "wkhtmltopdf")
+    #         ]
+    #         for path in possible_paths:
+    #             if os.path.isfile(path):
+    #                 return path
+    #         return "wkhtmltopdf"
+    #     return "wkhtmltopdf"
 
     def load_json_data(self, json_file):
         """
@@ -177,7 +179,7 @@ class ArticleAssembler:
     def process_input(self, input_text, pipeline):
         compel_instance = compel.Compel(tokenizer=pipeline.tokenizer, text_encoder=pipeline.text_encoder)
         # Use compel to handle sequences longer than 77 tokens
-        processed_text = self.compel_instance([input_text])
+        processed_text = compel_instance([input_text])
         return processed_text
 
     def generate_image(self, prompt, output_path):
@@ -196,25 +198,41 @@ class ArticleAssembler:
         image.save(output_path)
         print(f"Image saved to {output_path}")
 
+    # def convert_to_pdf(self, input_html, output_pdf):
+    #     """
+    #     Converts an HTML file to PDF using wkhtmltopdf.
+
+    #     :param input_html: Path to the HTML file.
+    #     :param output_pdf: Path to the output PDF file.
+    #     """
+    #     try:
+    #         print("Converting HTML to PDF...")
+    #         wkhtmltopdf_cmd = get_wkhtmltopdf_path()
+    #         subprocess.run([wkhtmltopdf_cmd, '--enable-local-file-access', input_html, output_pdf], check=True)
+    #         print(f"PDF created successfully at {output_pdf}")
+        
+    #     except FileNotFoundError:
+    #         raise FileNotFoundError(
+    #             "wkhtmltopdf not found. Please ensure it's installed and either:\n"
+    #             "1. Added to system PATH\n"
+    #             "2. Set WKHTMLTOPDF_PATH environment variable\n"
+    #             "3. Installed in standard Program Files location"
+    #         )
+    #     except subprocess.CalledProcessError as e:
+    #         print(f"Error during PDF creation: {e}")
+
     def convert_to_pdf(self, input_html, output_pdf):
         """
-        Converts an HTML file to PDF using wkhtmltopdf.
+        Converts an HTML file to PDF using WeasyPrint.
 
         :param input_html: Path to the HTML file.
         :param output_pdf: Path to the output PDF file.
         """
         try:
             print("Converting HTML to PDF...")
-            wkhtmltopdf_cmd = get_wkhtmltopdf_path()
-            subprocess.run([wkhtmltopdf_cmd, '--enable-local-file-access', input_html, output_pdf], check=True)
+            HTML(filename=input_html).write_pdf(output_pdf)
             print(f"PDF created successfully at {output_pdf}")
         
-        except FileNotFoundError:
-            raise FileNotFoundError(
-                "wkhtmltopdf not found. Please ensure it's installed and either:\n"
-                "1. Added to system PATH\n"
-                "2. Set WKHTMLTOPDF_PATH environment variable\n"
-                "3. Installed in standard Program Files location"
-            )
-        except subprocess.CalledProcessError as e:
+        except Exception as e:
             print(f"Error during PDF creation: {e}")
+            raise
