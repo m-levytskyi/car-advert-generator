@@ -57,19 +57,19 @@ class ArticleAssembler:
             elif sys.platform == "win32":
                 print("Please install Pandoc manually from https://pandoc.org/installing.html for Windows.")
         
-        # Check if LaTeX is installed
-        latex_installed = os.system("xelatex -version") == 0
-        if not latex_installed:
-            print("Installing LaTeX...")
-            if sys.platform.startswith("linux"):
-                if os.path.exists("/etc/arch-release"):
-                    run_command(["sudo", "pacman", "-Syu", "--needed", "texlive-core", "texlive-fontsextra"])
-                else:
-                    run_command(["sudo", "apt-get", "install", "-y", "texlive-xetex", "texlive-fonts-recommended", "texlive-fonts-extra"])
-            elif sys.platform == "darwin":
-                run_command(["brew", "install", "mactex-no-gui"])
-            elif sys.platform == "win32":
-                print("Please install LaTeX manually from https://miktex.org/download for Windows.")
+        # # Check if LaTeX is installed
+        # latex_installed = os.system("xelatex -version") == 0
+        # if not latex_installed:
+        #     print("Installing LaTeX...")
+        #     if sys.platform.startswith("linux"):
+        #         if os.path.exists("/etc/arch-release"):
+        #             run_command(["sudo", "pacman", "-Syu", "--needed", "texlive-core", "texlive-fontsextra"])
+        #         else:
+        #             run_command(["sudo", "apt-get", "install", "-y", "texlive-xetex", "texlive-fonts-recommended", "texlive-fonts-extra"])
+        #     elif sys.platform == "darwin":
+        #         run_command(["brew", "install", "mactex-no-gui"])
+        #     elif sys.platform == "win32":
+        #         print("Please install LaTeX manually from https://miktex.org/download for Windows.")
         
         # # Check if wkhtmltopdf is installed
         # try:
@@ -230,9 +230,19 @@ class ArticleAssembler:
         """
         try:
             print("Converting HTML to PDF...")
-            pypandoc.convert_file(input_html, to="pdf", outputfile=output_pdf, extra_args=["--pdf-engine=xelatex"])
+            pypandoc.convert_file(input_html, to="pdf", outputfile=output_pdf, extra_args=[f"--pdf-engine=weasyprint"])
             print(f"PDF created successfully at {output_pdf}")
-        
+        #Error during PDF creation: Pandoc died with exitcode "43" during conversion: Error producing PDF.
+        #! LaTeX Error: File `lmodern.sty' not found.
         except Exception as e:
-            print(f"Error during PDF creation: {e}")
-            raise
+            print(f"Error while converting PDF using weasyprint: {e}")
+            try:
+                print(f"Switching to xelatex...")
+                pypandoc.convert_file(input_html, to="pdf", outputfile=output_pdf, extra_args=[f"--pdf-engine=xelatex"])
+                print(f"PDF created successfully at {output_pdf}")
+            except Exception as e:
+                print(f"Error during PDF creation: {e}")
+                raise
+        
+        
+        
