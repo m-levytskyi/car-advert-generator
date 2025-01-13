@@ -98,6 +98,23 @@ class ArticleAssembler:
             print(f"Error occurred while installing requirements: {e}")
             sys.exit(1)
 
+    @staticmethod
+    def get_wkhtmltopdf_path():
+        """
+        Returns the appropriate wkhtmltopdf path based on the platform.
+        """
+        if sys.platform == "win32":
+            possible_paths = [
+                r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe",
+                r"C:\Program Files (x86)\wkhtmltopdf\bin\wkhtmltopdf.exe",
+                os.environ.get("WKHTMLTOPDF_PATH", "wkhtmltopdf")
+            ]
+            for path in possible_paths:
+                if os.path.isfile(path):
+                    return path
+            return "wkhtmltopdf"
+        return "wkhtmltopdf"
+
     def load_json_data(self, json_file):
         """
         Loads data from a JSON file.
@@ -188,7 +205,16 @@ class ArticleAssembler:
         """
         try:
             print("Converting HTML to PDF...")
-            subprocess.run(["wkhtmltopdf", '--enable-local-file-access', input_html, output_pdf], check=True)
+            wkhtmltopdf_cmd = get_wkhtmltopdf_path()
+            subprocess.run([wkhtmltopdf_cmd, '--enable-local-file-access', input_html, output_pdf], check=True)
             print(f"PDF created successfully at {output_pdf}")
+        
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                "wkhtmltopdf not found. Please ensure it's installed and either:\n"
+                "1. Added to system PATH\n"
+                "2. Set WKHTMLTOPDF_PATH environment variable\n"
+                "3. Installed in standard Program Files location"
+            )
         except subprocess.CalledProcessError as e:
             print(f"Error during PDF creation: {e}")
