@@ -160,3 +160,4 @@ First described in @rombach2021diffusion. Developed by The Machine Vision & Lear
   - Inference steps: 50
   - Guidance scale: 7.5
 - Error handling for failed generations
+- Using [compel](https://github.com/damian0815/compel/blob/main/README.md) library to handle long prompts (over 77 tokens)

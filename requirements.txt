@@ -8,3 +8,4 @@ setuptools==65.5.0
 tinycss2==1.4.0
 ultralytics==8.3.59
 wikipedia==1.4.0
+compel
