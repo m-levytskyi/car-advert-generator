@@ -30,8 +30,6 @@ class ArticleAssembler:
 
         self.pipeline = None
 
-        self.compel_instance = compel.Compel()
-
     @staticmethod
     def install_dependencies():
         def run_command(command):
@@ -159,9 +157,10 @@ class ArticleAssembler:
         self.pipeline.to(self.device)
         print("Stable Diffusion setup complete.")
 
-    def process_input(self, input_text):
+    def process_input(self, input_text, pipeline):
+        compel_instance = compel.Compel(tokenizer=pipeline.tokenizer, text_encoder=pipeline.text_encoder)
         # Use compel to handle sequences longer than 77 tokens
-        processed_text = self.compel_instance.process(input_text)
+        processed_text = self.compel_instance([input_text])
         return processed_text
 
     def generate_image(self, prompt, output_path):
@@ -175,8 +174,8 @@ class ArticleAssembler:
             raise ValueError("Stable Diffusion pipeline is not set up. Call `setup_stable_diffusion` first.")
         
         print(f"Generating image for prompt: {prompt}")
-        prompt = self.process_input(prompt)
-        image = self.pipeline(prompt).images[0]
+        prompt = self.process_input(prompt, self.pipeline)
+        image = self.pipeline(prompt_embeds=prompt).images[0]
         image.save(output_path)
         print(f"Image saved to {output_path}")
 

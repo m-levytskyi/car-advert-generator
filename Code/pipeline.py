@@ -162,13 +162,14 @@ def main():
         print("Error: Invalid mode. Please use 'camera' or 'images'")
         return
 
-    
+    print("\nStep 2: Preprocessing images...")
     # 2. Preprocess Images
     processed_count = preprocess_images(images_path, processed_path)
     if processed_count == 0:
         print("Error: No cars detected in images. Please try again.")
         return
-        
+    
+    print("\nStep 3: Classifying images...")
     # 3. Classify Images
     brand_classes, body_classes = load_classes()
     predictions = classify_images(processed_path, brand_classes, body_classes)
