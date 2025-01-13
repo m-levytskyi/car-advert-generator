@@ -155,8 +155,8 @@ class ArticleAssembler:
             content[f"paragraph_{i}"] = paragraph
         for i, caption in enumerate(captions, start=1):
             content[f"caption_{i}"] = caption
-        for i, figure_path in enumerate(figure_paths, start=1):
-            content[f"figure_{i}"] = f"../{figure_path}"
+        # for i, figure_path in enumerate(figure_paths, start=1):
+        #     content[f"figure_{i}"] = f"../{figure_path}"
 
         for placeholder, replacement in content.items():
             template = re.sub(rf"\{{\{{\s*{re.escape(placeholder)}\s*\}}\}}", str(replacement), template)
