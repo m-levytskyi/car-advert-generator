@@ -7,7 +7,7 @@ from diffusers import StableDiffusionPipeline
 import torch
 import compel
 
-from weasyprint import HTML
+import pypandoc
 
 
 class ArticleAssembler:
@@ -71,21 +71,21 @@ class ArticleAssembler:
             elif sys.platform == "win32":
                 print("Please install LaTeX manually from https://miktex.org/download for Windows.")
         
-        # Check if wkhtmltopdf is installed
-        try:
-            subprocess.run(["wkhtmltopdf", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            print("wkhtmltopdf is already installed.")
-        except FileNotFoundError:
-            print("Installing wkhtmltopdf...")
-            if sys.platform.startswith("linux"):
-                if os.path.exists("/etc/arch-release"):
-                    run_command(["sudo", "yay", "-S", "wkhtmltopdf"])
-                else:
-                    run_command(["sudo", "apt-get", "install", "-y", "wkhtmltopdf"])
-            elif sys.platform == "darwin":
-                run_command(["brew", "install", "wkhtmltopdf"])
-            elif sys.platform == "win32":
-                print("Please install wkhtmltopdf manually from https://wkhtmltopdf.org/downloads.html for Windows.")
+        # # Check if wkhtmltopdf is installed
+        # try:
+        #     subprocess.run(["wkhtmltopdf", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        #     print("wkhtmltopdf is already installed.")
+        # except FileNotFoundError:
+        #     print("Installing wkhtmltopdf...")
+        #     if sys.platform.startswith("linux"):
+        #         if os.path.exists("/etc/arch-release"):
+        #             run_command(["sudo", "yay", "-S", "wkhtmltopdf"])
+        #         else:
+        #             run_command(["sudo", "apt-get", "install", "-y", "wkhtmltopdf"])
+        #     elif sys.platform == "darwin":
+        #         run_command(["brew", "install", "wkhtmltopdf"])
+        #     elif sys.platform == "win32":
+        #         print("Please install wkhtmltopdf manually from https://wkhtmltopdf.org/downloads.html for Windows.")
 
     @staticmethod
     def install_python_requirements():
@@ -230,7 +230,7 @@ class ArticleAssembler:
         """
         try:
             print("Converting HTML to PDF...")
-            HTML(filename=input_html).write_pdf(output_pdf)
+            pypandoc.convert_file(input_html, to="pdf", outputfile=output_pdf, extra_args=["--pdf-engine=xelatex"])
             print(f"PDF created successfully at {output_pdf}")
         
         except Exception as e:
