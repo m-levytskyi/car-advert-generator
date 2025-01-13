@@ -30,6 +30,8 @@ class ArticleAssembler:
 
         self.pipeline = None
 
+        self.compel_instance = compel.Compel()
+
     @staticmethod
     def install_dependencies():
         def run_command(command):
