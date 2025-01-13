@@ -4,11 +4,16 @@ This chapter describes the architecture of the system.
 
 ## Overview
 
-[Give an overview of the architecture]
+The system consists of five main modules that form a sequential pipeline for car detection, classification and article generation:
+
+1. Webcam Module - Image capture with OpenCV
+2. Object Detector - YOLO11-X based car detection and preprocessing  
+3. Classifier - AlexNet-based brand/body classification (86%/84% accuracy)
+4. Article Agent - LLM-powered content generation
+5. Article Assembler - Image generation + PDF compilation system
+
 
 ## Modules 
-
-[Describe the modules of your system. If you added/removed/changed modules, explain why and change the chapter structure accordingly. A module description contains: Role in the overall system, input/output data, data flow, used packages, specific design decisions, ...]
 
 ### Webcam 
 
