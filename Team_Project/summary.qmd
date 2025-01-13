@@ -1,3 +1,5 @@
 # Summary
 
-[Summary / abstract: what is the project about? (150-200 words)]
+This project implements an end-to-end system for automatically generating car advertisement articles using deep learning and natural language models. The pipeline begins with image capture (via webcam or from files), processes these images through YOLO-based car detection, and uses a fine-tuned AlexNet for brand and body style classification (86% and 84% accuracy respectively). The system then employs LLMs (Llama3 and Zephyr) to generate contextually relevant article content, with tools for Wikipedia and web search integration providing factual context. The generated text is combined with Stable Diffusion-generated car images in a visually appealing HTML template, which is converted to a final PDF article.
+
+The modular architecture consists of five main components: image capture, object detection/classification, content generation, image generation, and article assembly. Notable technical achievements include efficient preprocessing using YOLO for improved classification accuracy, data augmentation techniques yielding accuracy gains, and a robust article generation system handling rate limits and exceptions gracefully. The final system demonstrates the feasibility of automated, high-quality content generation for automotive marketing materials.

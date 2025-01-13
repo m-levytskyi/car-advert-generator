@@ -1,6 +1,8 @@
 # Domain
 [describe the chosen article domain, e.g. ikea-like user manuals or cook books, ...]
 
+It was decided to generate articles about cars. The articles are structured in a way that they can be used for advertising purposes. The articles contain information about the car brand, the body type, the design aesthetics, key model highlights, the company legacy, historical achievements, advanced technology, and unique selling points. The articles are designed to be visually appealing and include images of the car.
+
 ## Article Structure
 
 The generated article follows a consistent structure designed for automotive advertisements:

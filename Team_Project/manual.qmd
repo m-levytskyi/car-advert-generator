@@ -38,17 +38,14 @@ pip install -r requirements_cuda.txt
 pip install -r requirements.txt
 ```
 
-4.  **Make sure LaTeX, Pandoc and wkhtmltopdf are installed and added to the PATH.**
+4.  **Make sure  Pandoc is installed and added to the PATH.**
 
 It should happen automatically if you are using a Unix-based system.
 
-Otherwise you can download them from the following links:
-
-**LaTeX**: https://miktex.org/download
+Otherwise you can download it from the following link:
 
 **Pandoc**: https://pandoc.org/installing.html
 
-**wkhtmltopdf**: https://wkhtmltopdf.org/downloads.html
 
 ## Usage
 

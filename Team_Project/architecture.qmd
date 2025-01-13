@@ -85,7 +85,6 @@ The original Resnet achieved an $3.57%$ error rate on ImageNet [@he2015deepresid
 
 ### Article Agent 
 
-<!-- [Also describe the used tools (e.g. wikipedia) and the reason for that choice] -->
 **Role**: Generate paragraphs, image titles and image descriptions from the predicted $brand$ and $bodystyle$
 
 
@@ -109,15 +108,14 @@ If paragraphs were already created, they are included in the request. This way, 
 
 ### Article Assembler 
 
-[Also describe potential article templates/structures you designed]
-
 **Role**: Generate structured car articles from templates  
 **Data Flow**: JSON data + Images → HTML → PDF
 
 **Implementation**:
 
+- Image generation with Stable Diffusion Model
 - Template-based article generation
-- HTML/PDF conversion pipeline
+- HTML/PDF conversion pipeline wih pypandoc and weasyprint (+ xelatex as fallback)
 - Configurable output formatting
 
 **Template Evolution**:
@@ -134,16 +132,20 @@ If paragraphs were already created, they are included in the request. This way, 
    - Responsive image positioning (left/right)
    - Custom typography and spacing
 
+   Required LaTex and some additional packages to be installed. Was challenging for multi-platform support.
+
+3. Final (simplified) HTML Template:
+   - Simplified design for readability
+   - Still has some styling for visual appeal
+   - Does not require LaTex
+
 **Design Decisions**:
 
 - HTML over Markdown for visual control
 - Modular template structure
-- Dark theme
-- Responsive image layouts
+- Custom typography
 
 ### Diffusion Model 
-
-[Also describe the used diffusion model]
 
 Stable Diffusion Model is a generative model that can generate high-quality images. It is based on the diffusion process, where the model iteratively refines the image by adding noise. The model is trained on a large dataset of images and can generate realistic images of cars. The model is used to generate images of cars for the article.
 
