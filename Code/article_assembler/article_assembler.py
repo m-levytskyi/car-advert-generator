@@ -124,12 +124,31 @@ class ArticleAssembler:
 
     def setup_stable_diffusion(self):
         """
-        Sets up the Stable Diffusion pipeline.
+        Sets up the Stable Diffusion pipeline with device-specific optimizations.
         """
         print("Setting up Stable Diffusion...")
-        self.pipeline = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4")#, torch_dtype=torch.float16)
-        self.pipeline.to(self.device)
-        print("Stable Diffusion setup complete.")
+        
+        if self.device == "cpu":
+            print("Warning: Running on CPU. Image generation will be significantly slower.")
+            self.pipeline = StableDiffusionPipeline.from_pretrained(
+                "CompVis/stable-diffusion-v1-4",
+                torch_dtype=torch.float32
+            )
+            self.pipeline.enable_attention_slicing()
+        else:
+            self.pipeline = StableDiffusionPipeline.from_pretrained(
+                "CompVis/stable-diffusion-v1-4",
+                torch_dtype=torch.float16
+            )
+            self.pipeline.enable_model_cpu_offload()
+            self.pipeline.enable_attention_slicing()
+            try:
+                self.pipeline.enable_xformers_memory_efficient_attention()
+            except Exception:
+                pass
+
+        self.pipeline = self.pipeline.to(self.device)
+        print(f"Stable Diffusion setup complete on {self.device}.")
 
     def process_input(self, input_text, pipeline):
         compel_instance = compel.Compel(tokenizer=pipeline.tokenizer, text_encoder=pipeline.text_encoder)
