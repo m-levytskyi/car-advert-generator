@@ -5,7 +5,7 @@ This chapter contains a description of the steps necessary to install and use th
 ## Prerequisites
 
 -   Python 3.11 - 3.12
--   CUDA-capable GPU (recommended)
+-   CUDA-capable GPU with at least 6GB VRAM (recommended)
 -   Webcam (recommended)
 
 ## Installation
