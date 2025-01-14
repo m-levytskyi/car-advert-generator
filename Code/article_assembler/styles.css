@@ -24,6 +24,22 @@ h2 {
     margin-top: 20px;
 }
 
+/* Figure container styling */
+figure {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin: 20px 0;
+    display: block;
+}
+
+figcaption {
+    page-break-before: avoid;
+    break-before: avoid;
+    margin-top: 8px;
+    text-align: center;
+    font-style: italic;
+}
+
 /* Section Styling */
 .section {
     padding: 20px;
