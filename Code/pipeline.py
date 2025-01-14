@@ -1,6 +1,7 @@
 """Car Classification Pipeline - processes car images and generates articles"""
 
 import os
+import gc
 import pandas as pd
 import numpy as np
 import torch
@@ -44,7 +45,6 @@ def load_classes():
 
 def preprocess_images(input_path, output_path, confidence=0.8):
 
-    # TODO: confidence
 
     """Preprocess images using YOLO detection"""
     print("Preprocessing images...")
@@ -55,34 +55,42 @@ def preprocess_images(input_path, output_path, confidence=0.8):
                   if p.suffix.lower() in valid_extensions]
     
     processed = 0
-    for img_path in image_paths:
-        results = model(str(img_path), verbose=False)
-        if len(results[0].boxes) > 0:
-            boxes = results[0].boxes.xyxy.cpu().numpy()
-            class_indices = results[0].boxes.cls.cpu().numpy()
-            confidence_scores = results[0].boxes.conf.cpu().numpy()
-            
-            # Filter for cars (class index 2) with confidence above threshold
-            car_indices = np.where((class_indices == 2) & (confidence_scores > confidence))[0]
+    try:
+        for img_path in image_paths:
+            results = model(str(img_path), verbose=False)
+            if len(results[0].boxes) > 0:
+                boxes = results[0].boxes.xyxy.cpu().numpy()
+                class_indices = results[0].boxes.cls.cpu().numpy()
+                confidence_scores = results[0].boxes.conf.cpu().numpy()
+                
+                # Filter for cars (class index 2) with confidence above threshold
+                car_indices = np.where((class_indices == 2) & (confidence_scores > confidence))[0]
 
-            if len(car_indices) > 0:
-                areas = (boxes[car_indices, 2] - boxes[car_indices, 0]) * (boxes[car_indices, 3] - boxes[car_indices, 1])
-                largest_car_idx = car_indices[np.argmax(areas)]
+                if len(car_indices) > 0:
+                    areas = (boxes[car_indices, 2] - boxes[car_indices, 0]) * (boxes[car_indices, 3] - boxes[car_indices, 1])
+                    largest_car_idx = car_indices[np.argmax(areas)]
 
-                # Get the bounding box for the largest car
-                x1, y1, x2, y2 = map(int, boxes[largest_car_idx])
+                    # Get the bounding box for the largest car
+                    x1, y1, x2, y2 = map(int, boxes[largest_car_idx])
 
-                # Load and process the image
-                img = cv2.imread(str(img_path))
-                cropped = img[y1:y2, x1:x2]
-                resized = cv2.resize(cropped, (256, 256))
+                    # Load and process the image
+                    img = cv2.imread(str(img_path))
+                    cropped = img[y1:y2, x1:x2]
+                    resized = cv2.resize(cropped, (256, 256))
 
-                # Save the processed image
-                output_file = os.path.join(output_path, img_path.name)
-                os.makedirs(os.path.dirname(output_file), exist_ok=True)
-                cv2.imwrite(output_file, resized)
-                processed += 1
-    
+                    # Save the processed image
+                    output_file = os.path.join(output_path, img_path.name)
+                    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+                    cv2.imwrite(output_file, resized)
+                    processed += 1
+    finally:
+        del model
+        gc.collect()
+        try:
+            torch.cuda.empty_cache()
+        except:
+            pass
+
     print(f"Preprocessed {processed} of {len(image_paths)} images")
     return processed
 
