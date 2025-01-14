@@ -84,14 +84,16 @@ class AssemblerPipeline:
             pdf_start = time.time()
             print("Converting to PDF...")
             self.assembler.convert_to_pdf(html_file, self.output_pdf_path)
-            print(f"Assembler Pipeline complete. PDF saved at {self.output_pdf_path}")
+            print("\n\n==================================")
+            print(f"Assembler Pipeline complete. PDF saved in root directory as {self.output_pdf_path}")
+            print("==================================\n\n")
             pdf_time = time.time() - pdf_start
 
             total_time = time.time() - total_start
 
             # Print timing summary
-            print("\n=== Pipeline Timing Summary ===")
-            print(f"Data Loading: {load_time:.2f} seconds")
+            print("=== Pipeline Timing Summary ===")
+            print(f"JSON Data Loading: {load_time:.2f} seconds")
             print(f"Stable Diffusion Setup: {setup_time:.2f} seconds")
             print(f"Image Generation: {image_gen_time:.2f} seconds")
             print(f"Average time per image: {avg_image_time:.2f} seconds")

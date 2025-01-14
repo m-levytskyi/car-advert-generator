@@ -22,7 +22,7 @@ PATHS = {
     'dataset': "Code/dataset/data/reduced_dataset_adjusted.csv",
     'json_output': "Code/article_agent/json/output.json",
     'images': "Code/article_assembler/tmp/imgs",
-    'article': "Code/article.pdf",
+    'article': "article.pdf",
     'weights_brand': "Code/image_classifier/alexnet/weights/Alexnet_brand_0.86acc.PTH",
     'weights_body': "Code/image_classifier/alexnet/weights/Alexnet_body_style_0.84acc.PTH"
 }

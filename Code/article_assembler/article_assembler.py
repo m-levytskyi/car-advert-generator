@@ -232,8 +232,7 @@ class ArticleAssembler:
             print("Converting HTML to PDF...")
             pypandoc.convert_file(input_html, to="pdf", outputfile=output_pdf, extra_args=[f"--pdf-engine=weasyprint"])
             print(f"PDF created successfully at {output_pdf}")
-        #Error during PDF creation: Pandoc died with exitcode "43" during conversion: Error producing PDF.
-        #! LaTeX Error: File `lmodern.sty' not found.
+
         except Exception as e:
             print(f"Error while converting PDF using weasyprint: {e}")
             try:
