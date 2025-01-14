@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{car_brand}} {{car_model}} - The Future of Driving</title>
-    <style>
+    <link rel="stylesheet" href="styles.css">
+    <!-- <style>
         /* General Reset */
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -18,15 +19,15 @@
         /* Header Styling */
         h1 {
             text-align: center;
-            background: #4CAF50;
-            color: white;
+            background: #ffffff;
+            color: rgb(0, 0, 0);
             padding: 10px 0;
             margin: 0;
         }
 
         h2 {
-            color: #4CAF50;
-            border-bottom: 2px solid #ddd;
+            color: #000000;
+            border-bottom: 2px solid #ffe600;
             padding-bottom: 5px;
             margin-top: 20px;
         }
@@ -61,7 +62,7 @@
             font-size: 0.9em;
             color: #555;
         }
-    </style>
+    </style> -->
 </head>
 <body>
 
@@ -69,7 +70,7 @@
         <h2>Introduction</h2>
         <p>{{paragraph_1}}</p>
         
-        <figure>
+        <figure class="right">
             <img src="Code/article_assembler/tmp/imgs/figure_1.png" alt="{{car_brand}} {{car_model}} - {{caption_1}}">
             <figcaption>{{caption_1}}</figcaption>
         </figure>
@@ -79,7 +80,7 @@
         <h2>New Model Overview</h2>
         <p>{{paragraph_2}}</p>
 
-        <figure>
+        <figure class="left">
             <img src="Code/article_assembler/tmp/imgs/figure_2.png" alt="{{car_brand}} {{car_model}} - {{caption_2}}">
             <figcaption>{{caption_2}}</figcaption>
         </figure>
@@ -87,7 +88,7 @@
         <h2>Brand Heritage</h2>
         <p>{{paragraph_3}}</p>
 
-        <figure>
+        <figure class="right">
             <img src="Code/article_assembler/tmp/imgs/figure_3.png" alt="{{car_brand}} {{car_model}} - {{caption_3}}">
             <figcaption>{{caption_3}}</figcaption>
         </figure>
@@ -97,7 +98,7 @@
         <h2>Innovative Features</h2>
         <p>{{paragraph_4}}</p>
 
-        <figure>
+        <figure class="left">
             <img src="Code/article_assembler/tmp/imgs/figure_4.png" alt="{{car_brand}} {{car_model}} - {{caption_4}}">
             <figcaption>{{caption_4}}</figcaption>
         </figure>
