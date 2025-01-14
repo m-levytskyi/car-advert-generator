@@ -59,12 +59,13 @@ class ArticleAgent:
         self.hf_token: Optional[str] = os.getenv("HUGGING_FACE_TOKEN")
 
         # Initialize the language model
-        self.hf_llm = HuggingFaceEndpoint(
-            repo_id="HuggingFaceH4/zephyr-7b-beta",
-            task="text-generation",
-            max_new_tokens=1024,
-            do_sample=False,
-            repetition_penalty=1.03,
+        self.tool_calling_llm = ChatGroq(
+            api_key=self.gq_token,
+            model="gemma2-9b-it",
+            temperature=0.5,
+            max_tokens=None,
+            timeout=None,
+            max_retries=2,
         )
 
         self.tools = list_of_tools
@@ -81,7 +82,7 @@ class ArticleAgent:
 
 
         # define the agent
-        chat_model_with_stop = self.hf_llm.bind(stop=["\nObservation"])
+        chat_model_with_stop = self.tool_calling_llm.bind(stop=["\nObservation"])
         agent = (
             {
                 "input": lambda x: x["input"],
@@ -93,7 +94,7 @@ class ArticleAgent:
         )
 
         # instantiate AgentExecutor
-        self.agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=False, handle_parsing_errors=True, max_iterations=4, return_intermediate_steps=True)
+        self.agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True, max_iterations=4, return_intermediate_steps=True)
 
     def token_in_string(self, string: str) -> int:
         """
