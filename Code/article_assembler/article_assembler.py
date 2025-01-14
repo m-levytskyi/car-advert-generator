@@ -162,23 +162,42 @@ class ArticleAssembler:
         """
         try:
             print("Converting HTML to PDF...")
-            #pypandoc.convert_file(input_html,to="pdf", outputfile=output_pdf, extra_args=[f"--pdf-engine=weasyprint"])
             from weasyprint import HTML, CSS
-            HTML(input_html).write_pdf(output_pdf, stylesheets=["Code/article_assembler/styles.css"])
+
+            style_path = os.path.normpath("Code/article_assembler/styles.css")
+
+            HTML(input_html).write_pdf(
+                output_pdf, 
+                stylesheets=[CSS(filename=style_path)]
+                )
             print(f"PDF created successfully at {output_pdf}")
         
-        except ImportError as e:
-            print(f"Missing dependencies: {e}")
-            print("Please ensure weasyprint and cairocffi are installed:")
-            print("pip install weasyprint cairocffi")
-            raise
-
         except Exception as e:
             print(f"Error while converting PDF using weasyprint: {e}")
             try:
                 print(f"Switching to xelatex...")
-                pypandoc.convert_file(input_html, to="pdf", outputfile=output_pdf, extra_args=[f"--pdf-engine=xelatex"])
+                # Get absolute paths
+                abs_input = os.path.abspath(input_html)
+                abs_output = os.path.abspath(output_pdf)
+                resource_path = os.path.dirname(abs_input)
+                
+                # Configure logging
+                import logging
+                logging.getLogger('pypandoc').setLevel(logging.ERROR)
+                
+                # Convert with proper resource path
+                pypandoc.convert_file(
+                    abs_input,
+                    to="pdf",
+                    outputfile=abs_output,
+                    extra_args=[
+                        "--pdf-engine=xelatex",
+                        f"--resource-path={resource_path}",
+                        "--verbose"
+                    ]
+                )
                 print(f"PDF created successfully at {output_pdf}")
+
             except Exception as e:
                 print(f"Error during PDF creation: {e}")
                 raise
