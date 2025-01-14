@@ -8,6 +8,7 @@ import torch
 import compel
 
 import pypandoc
+from weasyprint import HTML
 
 
 class ArticleAssembler:
@@ -57,35 +58,6 @@ class ArticleAssembler:
             elif sys.platform == "win32":
                 print("Please install Pandoc manually from https://pandoc.org/installing.html for Windows.")
         
-        # # Check if LaTeX is installed
-        # latex_installed = os.system("xelatex -version") == 0
-        # if not latex_installed:
-        #     print("Installing LaTeX...")
-        #     if sys.platform.startswith("linux"):
-        #         if os.path.exists("/etc/arch-release"):
-        #             run_command(["sudo", "pacman", "-Syu", "--needed", "texlive-core", "texlive-fontsextra"])
-        #         else:
-        #             run_command(["sudo", "apt-get", "install", "-y", "texlive-xetex", "texlive-fonts-recommended", "texlive-fonts-extra"])
-        #     elif sys.platform == "darwin":
-        #         run_command(["brew", "install", "mactex-no-gui"])
-        #     elif sys.platform == "win32":
-        #         print("Please install LaTeX manually from https://miktex.org/download for Windows.")
-        
-        # # Check if wkhtmltopdf is installed
-        # try:
-        #     subprocess.run(["wkhtmltopdf", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        #     print("wkhtmltopdf is already installed.")
-        # except FileNotFoundError:
-        #     print("Installing wkhtmltopdf...")
-        #     if sys.platform.startswith("linux"):
-        #         if os.path.exists("/etc/arch-release"):
-        #             run_command(["sudo", "yay", "-S", "wkhtmltopdf"])
-        #         else:
-        #             run_command(["sudo", "apt-get", "install", "-y", "wkhtmltopdf"])
-        #     elif sys.platform == "darwin":
-        #         run_command(["brew", "install", "wkhtmltopdf"])
-        #     elif sys.platform == "win32":
-        #         print("Please install wkhtmltopdf manually from https://wkhtmltopdf.org/downloads.html for Windows.")
 
     @staticmethod
     def install_python_requirements():
@@ -100,22 +72,6 @@ class ArticleAssembler:
             print(f"Error occurred while installing requirements: {e}")
             sys.exit(1)
 
-    # @staticmethod
-    # def get_wkhtmltopdf_path():
-    #     """
-    #     Returns the appropriate wkhtmltopdf path based on the platform.
-    #     """
-    #     if sys.platform == "win32":
-    #         possible_paths = [
-    #             r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe",
-    #             r"C:\Program Files (x86)\wkhtmltopdf\bin\wkhtmltopdf.exe",
-    #             os.environ.get("WKHTMLTOPDF_PATH", "wkhtmltopdf")
-    #         ]
-    #         for path in possible_paths:
-    #             if os.path.isfile(path):
-    #                 return path
-    #         return "wkhtmltopdf"
-    #     return "wkhtmltopdf"
 
     def load_json_data(self, json_file):
         """
@@ -155,8 +111,8 @@ class ArticleAssembler:
             content[f"paragraph_{i}"] = paragraph
         for i, caption in enumerate(captions, start=1):
             content[f"caption_{i}"] = caption
-        # for i, figure_path in enumerate(figure_paths, start=1):
-        #     content[f"figure_{i}"] = f"../{figure_path}"
+        for i, figure_path in enumerate(figure_paths, start=1):
+            content[f"figure_{i}"] = f"../{figure_path}"
 
         for placeholder, replacement in content.items():
             template = re.sub(rf"\{{\{{\s*{re.escape(placeholder)}\s*\}}\}}", str(replacement), template)
@@ -198,29 +154,6 @@ class ArticleAssembler:
         image.save(output_path)
         print(f"Image saved to {output_path}")
 
-    # def convert_to_pdf(self, input_html, output_pdf):
-    #     """
-    #     Converts an HTML file to PDF using wkhtmltopdf.
-
-    #     :param input_html: Path to the HTML file.
-    #     :param output_pdf: Path to the output PDF file.
-    #     """
-    #     try:
-    #         print("Converting HTML to PDF...")
-    #         wkhtmltopdf_cmd = get_wkhtmltopdf_path()
-    #         subprocess.run([wkhtmltopdf_cmd, '--enable-local-file-access', input_html, output_pdf], check=True)
-    #         print(f"PDF created successfully at {output_pdf}")
-        
-    #     except FileNotFoundError:
-    #         raise FileNotFoundError(
-    #             "wkhtmltopdf not found. Please ensure it's installed and either:\n"
-    #             "1. Added to system PATH\n"
-    #             "2. Set WKHTMLTOPDF_PATH environment variable\n"
-    #             "3. Installed in standard Program Files location"
-    #         )
-    #     except subprocess.CalledProcessError as e:
-    #         print(f"Error during PDF creation: {e}")
-
     def convert_to_pdf(self, input_html, output_pdf):
         """
         Converts an HTML file to PDF using WeasyPrint.
@@ -230,7 +163,8 @@ class ArticleAssembler:
         """
         try:
             print("Converting HTML to PDF...")
-            pypandoc.convert_file(input_html, to="pdf", outputfile=output_pdf, extra_args=[f"--pdf-engine=weasyprint"])
+            #pypandoc.convert_file(input_html,to="pdf", outputfile=output_pdf, extra_args=[f"--pdf-engine=weasyprint"])
+            HTML(input_html).write_pdf(output_pdf, stylesheets=["Code/article_assembler/styles.css"])
             print(f"PDF created successfully at {output_pdf}")
 
         except Exception as e:
