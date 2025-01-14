@@ -12,3 +12,4 @@ compel
 accelerate
 pypandoc
 weasyprint
+cairocffi

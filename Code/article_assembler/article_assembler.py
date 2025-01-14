@@ -8,7 +8,6 @@ import torch
 import compel
 
 import pypandoc
-from weasyprint import HTML
 
 
 class ArticleAssembler:
@@ -128,7 +127,7 @@ class ArticleAssembler:
         Sets up the Stable Diffusion pipeline.
         """
         print("Setting up Stable Diffusion...")
-        self.pipeline = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4")
+        self.pipeline = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4")#, torch_dtype=torch.float16)
         self.pipeline.to(self.device)
         print("Stable Diffusion setup complete.")
 
@@ -164,8 +163,15 @@ class ArticleAssembler:
         try:
             print("Converting HTML to PDF...")
             #pypandoc.convert_file(input_html,to="pdf", outputfile=output_pdf, extra_args=[f"--pdf-engine=weasyprint"])
+            from weasyprint import HTML, CSS
             HTML(input_html).write_pdf(output_pdf, stylesheets=["Code/article_assembler/styles.css"])
             print(f"PDF created successfully at {output_pdf}")
+        
+        except ImportError as e:
+            print(f"Missing dependencies: {e}")
+            print("Please ensure weasyprint and cairocffi are installed:")
+            print("pip install weasyprint cairocffi")
+            raise
 
         except Exception as e:
             print(f"Error while converting PDF using weasyprint: {e}")
