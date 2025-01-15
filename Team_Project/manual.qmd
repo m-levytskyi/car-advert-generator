@@ -38,7 +38,7 @@ pip install -r requirements_cuda.txt
 pip install -r requirements.txt
 ```
 
-4.  **Make sure  Pandoc and GTK3 are installed and added to the PATH.**
+4.  **Make sure  Pandoc, GTK3 and MikTeX (xelatex) are installed and added to the PATH.**
 
 It should happen automatically if you are using Linux.
 
@@ -48,6 +48,7 @@ Otherwise you can download it from the following link:
 **GTK3**: 
 Windows: github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer
 MacOS: https://www.gtk.org/docs/installations/macos/
+**MiKTeX**: https://miktex.org/download
 
 ## Usage
 
