@@ -57,7 +57,7 @@ def search_wikipedia(searchstring: str) -> Dict[str, Any]:
     try:
         docs = wikipedia_retriever.invoke(searchstring)
         content = "\n\n".join(doc.page_content for doc in docs) if docs else "No relevant Wikipedia results."
-        truncated_content = content[:5000] + "..." if len(content) > 1000 else content
+        truncated_content = content[:4000] + "..." if len(content) > 1000 else content
         return {"status": "success", "content": truncated_content}
     except Exception as e:
         print(f"Wikipedia retrieval failed: {e}")

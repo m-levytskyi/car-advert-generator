@@ -100,7 +100,7 @@ It is difficult to draw a definite conclusion from the Captum plots. However, it
 
 ## Article Agent 
 
-[Show some best- and worst-case examples and their timings]
+<!-- [Show some best- and worst-case examples and their timings] -->
 
 ### Further Evaluation of Tools
 **Wikipedia**
@@ -115,7 +115,7 @@ At first, the tool calling did not really work, because either the LLM did not c
 Another issue with the tool calling was that ChatGroq tended to answer too human-like. E.g. "I am sorry here is the article, ..." or "Here is a paragraph about a new SUV offered by ...". Without the tool calling, this did not happen. Maybe the LLM loses sight of the system message, which describes that the answer should only contain the finished article because of the additional tool-calling context.
 Finally, the Groq API sporadically returned the error `Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details`. Because of these reasons and issues with token limits by the API, we settled on not using the ChatGroq API for tool calling, and only for generation of the text.
 
-We pivoted to using the ReAct Agent along with the HuggingFace zepyhr LLM. This largely solved the previous problems, and the tools were called properly. But it took around 15 tool calls for the agent to provide a final answer. 
+We pivoted to using the ReAct Agent along with the Gemma2 LLM with the Groq API. This largely solved the previous problems, and the tools were called properly. But it took around 15 tool calls for the agent to provide a final answer. 
 
 In theory, the `AgentExecutor` class responsible offers a way of early stopping to generate a final answer after $x$ iterations. However, this does not work, the method is part of the documentation but not implemented in the actual code. There also exist multiple GitHub issues for exactly this issue ([issue1](https://github.com/langchain-ai/langchain/issues/16263), [issue2](https://github.com/langchain-ai/langchain/issues/16374), [issue3](https://github.com/langchain-ai/langchain/issues/2576)) which are over a year old in some cases. To resolve this, the intermediate steps (toolcalls) after $x$ iterations are taken and then fed manually to a LLM (GroqAPI) as context.
 
@@ -123,8 +123,12 @@ The issue with the start of the message containing unneeded introductions was so
 
 A persistent issue with the tool calling was that the LLM favored the Wikipedia tool named `search_wikipedia` and only very rarely used the DDG tool `search_duckduckgo`. This issue was solved by renaming the DDG tool to `search_google`. It seems that the LLM is biased against DDG. 
 
+### Issues with HuggingFace
+At first the LLM for the toolcalling was the `zephyr-7b-alpha` model [by HuggingFace](https://huggingface.co/HuggingFaceH4/zephyr-7b-alpha).
+However, the API did not work reliably under Linux and Windows. It sporadically did not accept the API key. Because of this we picoted to `Gemma2` by Groq.
+
 ### Answer analysis
-Note: The following are sections of the verbose output of the ReAct Agent with HuggingFace zephyr as the model
+Note: The following are sections of the verbose output of the ReAct Agent with Groq Gemma2 as the model
 
 #### Tool calling with rate-limiting error
 
@@ -243,6 +247,16 @@ Finished chain.
 2024-12-28 14:07:51,005 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
 content="Paragraph: The latest innovations of the Sedan of BMW have set a new standard in the automotive industry. The new Sedan features a sleek and aerodynamic design, with a reduced drag coefficient that enhances its fuel efficiency and performance. Additionally, the Sedan boasts advanced safety features, including a 360-degree camera system and a lane departure warning system, to provide drivers with an added layer of protection on the road. Furthermore, the Sedan's advanced infotainment system, featuring a large touchscreen display and voice command capabilities, allows drivers to stay connected and entertained on the go. With its impressive features and impressive performance, the new Sedan of BMW is a game-changer in the world of luxury vehicles." additional_kwargs={} response_metadata={'token_usage': {'completion_tokens': 143, 'prompt_tokens': 2345, 'total_tokens': 2488, 'completion_time': 0.119166667, 'prompt_time': 0.293130838, 'queue_time': 0.022557168000000016, 'total_time': 0.412297505}, 'model_name': 'llama3-8b-8192', 'system_fingerprint': 'fp_179b0f92c9', 'finish_reason': 'stop', 'logprobs': None} id='run-c406d9c3-e550-4c95-b5e8-75f8e56917e0-0' usage_metadata={'input_tokens': 2345, 'output_tokens': 143, 'total_tokens': 2488}
 ```
+
+#### Ratelimit by the Groq API
+1. If the agent is called too often, the ratelimit for the Gemma2 API can be surpassed.
+```
+2025-01-16 19:58:04,984 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-01-16 19:58:04,984 - groq._base_client - INFO - Retrying request to /openai/v1/chat/completions in 9.000000 seconds
+2025-01-16 19:58:14,482 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+```
+2. If this happens, the code suspends a few seconds and the tries again.
+
 
 #### Example outputs of Llama3 (Groq)
 Since the Groq API is made for text generation, the answers are almost always very good. The only problem is that the generated paragraphs are often structured similarly because the LLM is given the previous answers as context. For more example outputs of paragraphs, image descriptions and image subtitles, see `adl-gruppe-1/Code/article_agent/json`.
