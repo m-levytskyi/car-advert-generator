@@ -1,99 +1,62 @@
-# Team Work 
+# Team Work
 
+## Work Packages
 
-
-## Work Packages 
-
-[Describe all work packages]
+\[Describe all work packages\]
 
 Table @tbl-wps contains all work packages defined for this project.
 
-+-------------+--------------------------------+-----------------+
-| Package No. | Description                    | Responsible     |
-+=============+================================+=================+
-| 1           | Create AlexNet                 | Marvin          |
-+-------------+--------------------------------+-----------------+
-| 2           | Evaluate Object Detectors      | Marvin          |
-+-------------+--------------------------------+-----------------+
-| 3           | Dataloader Advancements        | Marvin          |
-|             | (Augmentation, Equal           |                 |
-|             | Distribution, In-Memory,       |                 |
-|             | Ignore Labels ...)             |                 |
-+-------------+--------------------------------+-----------------+
-| 4           | Preprocessing                  | Marvin          |
-+-------------+--------------------------------+-----------------+
-| 5           | Filter interior images         | Marvin          |
-+-------------+--------------------------------+-----------------+
-| 6           | General Training Improvement   | Marvin          |
-+-------------+--------------------------------+-----------------+
-| 7           | Transferlearning: Resnet50     | Simon           |
-|             | architecture with freezing     |                 |
-|             | of the weights for our         |                 |
-|             | application                    |                 |
-+-------------+--------------------------------+-----------------+
-| 8           | Transferlearning: Resnet50     | Simon           |
-|             | architecture with finetuning   |                 |
-|             | of the weights for our         |                 |
-|             | application                    |                 |
-+-------------+--------------------------------+-----------------+
-| 9           | Implement basic dataloader     | Simon           |
-+-------------+--------------------------------+-----------------+
-| 10          | Article Agent: Explore Options | Simon           |
-+-------------+--------------------------------+-----------------+
-| 11          | Article Agent: Implement basic | Simon           |
-|             | Solution                       |                 |
-+-------------+--------------------------------+-----------------+
-| 12          | Article Agent: Implement tool  | Simon           |
-|             | calling, refactor Article Agent|                 |
-+-------------+--------------------------------+-----------------+
-| 13          | Captum: Create Captum plots    | Simon           |
-|             | for DS1                        |                 |
-+-------------+--------------------------------+-----------------+
-| 14          | Captum: Create Captum plots    | Simon           |
-|             | for DS2                        |                 |
-+-------------+--------------------------------+-----------------+
-| 15          | Writing Report                 | Simon           |
-+-------------+--------------------------------+-----------------+
-
+| Package No. | Description | Responsible |
+|-----------------|-------------------------------|-----------------|
+| 1 | Create AlexNet | **Marvin** |
+| 2 | Evaluate Object Detectors | Marvin |
+| 3 | Dataloader Advancements (Augmentation, Equal Distribution, In-Memory, Ignore Labels ...) | Marvin |
+| 4 | Preprocessing | Marvin |
+| 5 | Filter interior images | Marvin |
+| 6 | General Training Improvement | Marvin |
+| 7 | Transferlearning: Resnet50 architecture with freezing of the weights for our application | **Simon** |
+| 8 | Transferlearning: Resnet50 architecture with finetuning of the weights for our application | Simon |
+| 9 | Implement basic dataloader | Simon |
+| 10 | Article Agent: Explore Options | Simon |
+| 11 | Article Agent: Implement basic Solution | Simon |
+| 12 | Article Agent: Implement tool calling, refactor Article Agent | Simon |
+| 13 | Captum: Create Captum plots for DS1 | Simon |
+| 14 | Captum: Create Captum plots for DS2 | Simon |
+| 15 | Writing Report | Simon |
+| 17 | Vision Transformer data loader / training | **Mykhailo** |
+| 18 | ViT refactoring / layer freezing | Mykhailo |
+| 19 | Article Assembler initial version | Mykhailo |
+| 20 | Webcam Capture Module | Mykhailo |
+| 21 | Article Assembler refactoring / improvements | Mykhailo |
+| 22 | HTML Article Template for better formatting | Mykhailo |
+| 23 | Initial Pipeline with dummy variables | Mykhailo |
+| 24 | Pipeline finalization / Fallback option to run without a webcam | Mykhailo |
+| 25 | Improved HTML to PDF conversion with fallback options | Mykhailo |
+| 26 | Cross-platform (Linux/MacOS/Windows) Pipeline testing | Mykhailo, Marvin, Simon, Johannes |
+| 27 | YOLO and Stable Diffusion optimization | Mykhailo, Marvin |
+| 28 | Requirements and Quarto Report | Mykhailo |
 
 : Work packages. {#tbl-wps}
 
-## Timeline 
+## Timeline
 
-[Describe who worked on which work package and when]
+\[Describe who worked on which work package and when\]
 
-+-------------+--------------------------------+
-| KW          | Package No.                    |
-+=============+================================+
-| 40          | 1                              |
-+-------------+--------------------------------+
-| 41          | 1, 7                           |
-+-------------+--------------------------------+
-| 42          | 2, 7, 9                        |
-+-------------+--------------------------------+
-| 43          | 5, 6, 10                       |
-+-------------+--------------------------------+
-| 44          | 3, 6, 10, 11                   |
-+-------------+--------------------------------+
-| 45          | 3, 6, 11                       |
-+-------------+--------------------------------+
-| 46          | 3, 6, 11                       |
-+-------------+--------------------------------+
-| 47          | 6, 11                          |
-+-------------+--------------------------------+
-| 48          | 6, 8, 13                       |
-+-------------+--------------------------------+
-| 49          | 4, 6                           |
-+-------------+--------------------------------+
-| 50          | 4, 6, 12                       |
-+-------------+--------------------------------+
-| 51          | 4, 6, 12, 14, 15               |
-+-------------+--------------------------------+
-| 52          | 6, 12, 15                      |
-+-------------+--------------------------------+
-| 1           | 15                             |
-+-------------+--------------------------------+
-| 2           | 15                             |
-+-------------+--------------------------------+
-
-
+| KW  | Package No.         |
+|-----|---------------------|
+| 40  | 1, 17               |
+| 41  | 1, 7, 17            |
+| 42  | 2, 7, 9, 18, 19, 20 |
+| 43  | 5, 6, 10, 20        |
+| 44  | 3, 6, 10, 11        |
+| 45  | 3, 6, 11, 21, 22    |
+| 46  | 3, 6, 11            |
+| 47  | 6, 11               |
+| 48  | 6, 8, 13, 23        |
+| 49  | 4, 6, 23            |
+| 50  | 4, 6, 12, 24        |
+| 51  | 4, 6, 12, 14, 15    |
+| 52  | 6, 12, 15           |
+| 1   | 15, 24              |
+| 2   | 15, 24, 25, 28      |
+| 3   | 25, 26, 27, 28      |
