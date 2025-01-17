@@ -51,13 +51,13 @@ And no, i didn't build a new server with 128Gb of memory, 16Gb Vram and a M.2-Ra
 ### Additional Hyperparameter adjustments: \
 
 1. Batch Size
-    - bigger batch size allows better generalization
-    ![256 vs 512 batch size](images/training/batch_size.png)
+    - bigger batch size allows better generalization \
+    ![256 vs 512 batch size](images/training/batch_size.png) \
     *256 vs 512 batch size* \
 \ 
 2. Learning Rate
-    -  every other learning rate than 0.0001 made training either slower or stopped it
-    ![256 vs 512 batch size](images/training/lr.png)
+    -  every other learning rate than 0.0001 made training either slower or stopped it \
+    ![256 vs 512 batch size](images/training/lr.png) \
     *0.01 (orange) vs. 0.001 (cyan) vs. 0.0001 (light orange) vs 0.00001 (purple)* \
     \
 
