@@ -11,7 +11,7 @@ Table @tbl-wps contains all work packages defined for this project.
 | 1 | Create AlexNet | **Marvin** |
 | 2 | Evaluate Object Detectors | Marvin |
 | 3 | Dataloader Advancements (Augmentation, Equal Distribution, In-Memory, Ignore Labels ...) | Marvin |
-| 4 | Preprocessing | Marvin |
+| 4 | Preprocessing | Marvin, Johannes |
 | 5 | Filter interior images | Marvin |
 | 6 | General Training Improvement | Marvin |
 | 7 | Transferlearning: Resnet50 architecture with freezing of the weights for our application | **Simon** |
@@ -22,7 +22,7 @@ Table @tbl-wps contains all work packages defined for this project.
 | 12 | Article Agent: Implement tool calling, refactor Article Agent | Simon |
 | 13 | Captum: Create Captum plots for DS1 | Simon |
 | 14 | Captum: Create Captum plots for DS2 | Simon |
-| 15 | Writing Report | Simon |
+| 15 | Writing Report | Mykhailo, Marvin, Simon, Johannes |
 | 17 | Vision Transformer data loader / training | **Mykhailo** |
 | 18 | ViT refactoring / layer freezing | Mykhailo |
 | 19 | Article Assembler initial version | Mykhailo |
@@ -35,6 +35,13 @@ Table @tbl-wps contains all work packages defined for this project.
 | 26 | Cross-platform (Linux/MacOS/Windows) Pipeline testing | Mykhailo, Marvin, Simon, Johannes |
 | 27 | YOLO and Stable Diffusion optimization | Mykhailo, Marvin |
 | 28 | Requirements and Quarto Report | Mykhailo |
+| 29 | Research for car datasets on the internet | **Johannes** |
+| 30 | Creation of .csv files for DS1 and DS2 to make single images accessible for the dataloader | Johannes |
+| 31 | Cleaning of DS1 and summarizing it's labels | Johannes |
+| 32 | Creation of labels for DS2 | Johannes |   
+| 33 | Analysis of class distribution of DS1 and DS2 | Johannes |
+| 34 | Adjustment of class distribution of DS1 and DS2 | Johannes |
+
 
 : Work packages. {#tbl-wps}
 
@@ -42,21 +49,21 @@ Table @tbl-wps contains all work packages defined for this project.
 
 \[Describe who worked on which work package and when\]
 
-| KW  | Package No.         |
-|-----|---------------------|
-| 40  | 1, 17               |
-| 41  | 1, 7, 17            |
-| 42  | 2, 7, 9, 18, 19, 20 |
-| 43  | 5, 6, 10, 20        |
-| 44  | 3, 6, 10, 11        |
-| 45  | 3, 6, 11, 21, 22    |
-| 46  | 3, 6, 11            |
-| 47  | 6, 11               |
-| 48  | 6, 8, 13, 23        |
-| 49  | 4, 6, 23            |
-| 50  | 4, 6, 12, 24        |
-| 51  | 4, 6, 12, 14, 15    |
-| 52  | 6, 12, 15           |
-| 1   | 15, 24              |
-| 2   | 15, 24, 25, 28      |
-| 3   | 25, 26, 27, 28      |
+| KW  | Package No.             |
+|-----|-------------------------|
+| 40  | 1, 17                   |
+| 41  | 1, 7, 17, 29            |
+| 42  | 2, 7, 9, 18, 19, 20, 30 |
+| 43  | 5, 6, 10, 20, 31        |
+| 44  | 3, 6, 10, 11, 31        |
+| 45  | 3, 6, 11, 21, 22, 32    |
+| 46  | 3, 6, 11, 32            |
+| 47  | 6, 11, 32, 33           |
+| 48  | 6, 8, 13, 23, 33, 34    |
+| 49  | 4, 6, 23, 33, 34        |
+| 50  | 4, 6, 12, 24, 34        |
+| 51  | 4, 6, 12, 14, 15        |
+| 52  | 6, 12, 15               |
+| 1   | 15, 24                  |
+| 2   | 15, 24, 25, 28          |
+| 3   | 25, 26, 27, 28          |

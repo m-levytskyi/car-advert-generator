@@ -17,11 +17,48 @@ The layout alternates between text content and supporting images, with figures p
 The article uses a dark theme with contrasting elements and concludes with a call-to-action button for test drive bookings.
 
 ## Data Set 
-[Describe the data set (source, size, examples, ...)]
+### Compilation of Data Sets
+At the beginning of the project, after the team agreed on creating a car advertisement article generator, data had to be researched to find the best fitting architecture for the prediction of car brands and body shapes of cars. As the main data set (DS1) the "Car Models 3778" data set [-@noauthor_car_nodate] from Kaggle was used, because it is the largest and best-labeled cars data set resulting from our research for data. It contains about 193,000 images in the size of 512x512 pixels and consists of exterior view images mainly but contains interior view images as well. Further, it is labeled with 35 usable classes about the model and technical data of the cars. We decided to use the classes 'brand' and 'body style' of this data set because they should be easiest to predict from exterior view images. Further, the usage of a higher amount of labels would come with an uncontrollable complexity. As an additional data set (DS2) to extend DS1, three further data sets from Kaggle were used and combined into one data set:
 
-::: {.callout-tip}
-You can use figures and reference them in the text (but only outside of tip-sections :D): 
-:::
-![Elephants.](images/elephants.png){#fig-elephants}
+- "Stanford Car Dataset by classes folder" data set [-@noauthor_stanford_nodate] consisting of 16,185 car exterior view images in various sizes
+- "88,000+ Images of Cars" data set [-@noauthor_88000_nodate] consisting of 88,560 car exterior view images in various sizes
+- Cars directory of "130k Images (512x512) - Universal Image Embeddings" data set [-@noauthor_130k_nodate] consisting of 8,144 car exterior view images in the size of 512x512 pixels
 
-This is how references are used: @fig-elephants
+The labels provided on Kaggle for these three data sets were not useable for our project, so they can be considered as unlabeled data sets.
+
+### Preprocessing of Data Sets
+As the first step of preprocessing the images contained in DS1 and DS2 were resized to a resolution of 256x256 pixels because that is the input size required by the object detector model. Further .csv files were created for DS1 and DS2 which represent each image and their corresponding labels by one line so that the data sets can be easily loaded for the training of the object detector model. 
+
+#### Cleaning of Data Set 1 (DS1)
+For DS1 the set of labels for both selected classes 'brand' and 'body style' was reduced based on the distribution of the labels and to avoid a too high total number of them. For the class 'brand' the original DS1 contained 98 labels. To reduce this high number of labels, all brands were removed from DS1 that occurs less than 50 times which resulted in 24 remaining labels for the class 'brand' further the labels 'MercedesAMG' and 'MERCEDESBENZ' were combined to 'MERCEDESBENZ' and the label 'FERRARI' was removed also, because it occurs 64 times what is close to the threshold and rarely compared to the other remaining brands. Further, the original DS1 contained 7 labels for the class 'body style' with a strong imbalance of the label distribution too. To adjust distribution 4 the labels were combined into two labels and the label 'Truck' was removed completely from DS1 because of its very low occurence. The labels 'Convertible' and 'Coupé' were combined in the new label 'sports car' and the labels 'Van' and 'Wagon' were combined in the new label 'family car'. 
+
+As already mentioned in [Compilation of data sets](domain.qmd#compilation-of-data-sets) DS1 contains interior view images too. To remove the interior view images a pre-trained YOLO11x model [@ultralytics_yolo11_nodate] was used by making predictions for the label 'car'. If the model could not detect any object in the image with a confidence greater than 0.8 for the label 'car', the image was removed from DS1. Further details about that process are described in [Image Classifier](evaluation.qmd#Image Classifier). All the mentioned steps of preprocessing of DS1 reduced its number of images to a total of 96,747. Its final distributions of the classes 'brand' and 'body style' can be seen in the following images.
+
+![Histogram of the label distribution of the class 'brand' of the prepocessed DS1](images/histogram_brand.png)
+
+
+![Histogram of the label distribution of the class 'body style' of the prepocessed DS1](images/histogram_body_style.png)
+
+
+#### Labeling of Data Set 2 (DS2)
+Based on the sets of classes and labels defined in [Cleaning of Data Set 1 (DS1)](domain.qmd#cleaning-of-data-set-1-(ds1) the DS2 had to be labeled. For that purpose, the CLIP (Connecting text and images) model [@noauthor_openaiclip_2025] from OpenAI was used in its biggest version "ViT-L/14" which consists of 307 million parameters. CLIP is a vision transformer model designed to understand the relationship between visual and textual information. It can determine how well a given text description matches an image, and what perfectly matches the task of labeling large sets of images. To prevent influence on the labeling process of DS2 from our selection of labels during the preprocessing of DS1, a list of the 50 most common car brands in the world was used to label DS2 for the 'brand' class. For that purpose ChatGPT was asked to provide that list, all 24 labels for the class car were contained in the answer from ChatGPT. For the labeling of the 'body style' class, the adjusted set of labels from the preprocessing of DS2 was used. The labeling performance of the CLIP model was measured on the predicted label with the highest value of confidence. After labeling the DS2 by the 'brand' class, 39,635 images remained, because the label with the highest confidence was contained in the list of 24 brands from the preprocessing of DS1. However, even after the labeling process, DS2 had to be sorted out further, because there were many images with poor confidence values left for their predicted label of the class 'brand'. To get DS2 even a bit bigger than 20,000 images, which is around one-fifth of DS1, a threshold for the confidence of the 'brand' class of 0.5 was chosen. The distributions of the classes 'brand' and 'body style' of DS2 can be seen in the following images.
+
+![Histogram of the label distribution of the class 'brand' of the prepocessed DS2](images/ds2_histogram_brand.png)
+
+
+![Histogram of the label distribution of the class 'body style' of the prepocessed DS2](images/ds2_histogram_body_style.png)
+
+ 
+#### Combined Data Sets (DS1 + DS2)
+The preprocessed data sets combined together result in a total number of 136,382 images and the following distributions over the classes 'brand' and 'body style'.
+
+![Histogram of the label distribution of the class 'brand' of the prepocessed DS1 + DS2](images/all_histogram_brand.png)
+
+
+![Histogram of the label distribution of the class 'body style' of the prepocessed DS1 + DS2](images/all_histogram_body_style.png)
+
+
+It can be seen that the inequality in both classes 'brand' and 'body style' of the combined data set lost a bit of weight compared to the histograms of DS1. However, the label distribution of the 'brand' class still doesn't look good. So further adjustments were made to reduce the influence of the dominating car brands in the combined data set (see [Image Classifier](evaluation.qmd#Image Classifier)).
+
+
+

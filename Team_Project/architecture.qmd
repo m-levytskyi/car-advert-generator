@@ -85,7 +85,7 @@ The original Resnet achieved an $3.57%$ error rate on ImageNet [@he2015deepresid
 
 ### Article Agent 
 
-**Role**: Generate paragraphs, image titles and image descriptions from the predicted $brand$ and $bodystyle$
+**Role**: Generate paragraphs, image titles and image descriptions from the predicted 'brand' and 'body style'
 
 
 **Data Flow**: Brand + Bodystyle → Agent logic → JSON data with paragraphs, image titles, image descriptions
@@ -98,7 +98,7 @@ The article agent is made up of two different LLMs, and two tools. One LLM is us
 
 **Tools**
 
-The Wikipedia tool allows for general information retrieval.  For some paragraphs, the request to the LLM might look like this: "Write a paragraph for an article about a new $car_type$ offered by $brand$." Here, general information like a Wikipedia article about the brand are useful. The [Wikipedia API](https://python.langchain.com/docs/integrations/retrievers/wikipedia/) can be called with any searchstring and return a relevant article.
+The Wikipedia tool allows for general information retrieval.  For some paragraphs, the request to the LLM might look like this: "Write a paragraph for an article about a new car type offered by 'brand'." Here, general information like a Wikipedia article about the brand are useful. The [Wikipedia API](https://python.langchain.com/docs/integrations/retrievers/wikipedia/) can be called with any searchstring and return a relevant article.
 
 For more recent and specific information, the [DuckDuckGo API](https://python.langchain.com/docs/integrations/tools/ddg/) is better suited. The finished article should be tailored to a specific car, as the only information is brand and body type, DDG can help to create more variance in the article. The LLM can call this tool with a search string that is then forwarded to the DuckDuckGo API.
 
